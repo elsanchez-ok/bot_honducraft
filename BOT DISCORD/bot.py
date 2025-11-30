@@ -18,11 +18,6 @@ import traceback
 from collections import defaultdict, Counter
 import re
 import time
-import requests
-from bs4 import BeautifulSoup
-from aiohttp import web
-import threading
-
 
 # =============================================
 # CONFIGURACIÓN AVANZADA Y CONSTANTES
@@ -1187,4 +1182,3 @@ threading.Thread(target=start_web_server, daemon=True).start()
 # Ejecutar el bot
 if __name__ == "__main__":
     asyncio.run(main())
-
