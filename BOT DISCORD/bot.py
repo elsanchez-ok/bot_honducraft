@@ -479,7 +479,7 @@ class ProfessionalEmbeds:
                     embed.add_field(name=name, value=value, inline=inline)
         
         footer_text = footer or "Honducraft Pro • Sistema Avanzado"
-        embed.set_footer(text=footer_text, icon_url="Users\david\Downloads\BOT DISCORD\honducraft.png")
+        embed.set_footer(text=footer_text, icon_url="https://i.postimg.cc/7LRKvvn8/honducraft.png")
         
         return embed
     
@@ -1222,4 +1222,5 @@ async def main():
 if __name__ == "__main__":
 
     asyncio.run(main())
+
 
