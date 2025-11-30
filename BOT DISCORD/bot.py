@@ -20,6 +20,9 @@ import re
 import time
 import requests
 from bs4 import BeautifulSoup
+from aiohttp import web
+import threading
+
 
 # =============================================
 # CONFIGURACIÓN AVANZADA Y CONSTANTES
@@ -1170,16 +1173,18 @@ async def main():
         traceback.print_exc()
 
 # Servidor para Render
-def fake_server():
-    s = socket.socket()
-    s.bind(('0.0.0.0', 10000))
-    s.listen(1)
-    while True:
-        conn, addr = s.accept()
-        conn.close()
+async def handle(request):
+    return web.Response(text="Honducraft Bot está vivo 🚀")
 
-threading.Thread(target=fake_server, daemon=True).start()
+def start_web_server():
+    app = web.Application()
+    app.router.add_get("/", handle)
+    web.run_app(app, host="0.0.0.0", port=10000)
+
+# Lanzar el servidor en segundo plano
+threading.Thread(target=start_web_server, daemon=True).start()
 
 # Ejecutar el bot
 if __name__ == "__main__":
     asyncio.run(main())
+
