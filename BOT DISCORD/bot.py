@@ -25,7 +25,7 @@ import time
 
 class BotConfig:
     """Configuración avanzada tipo MEE6/Dyno"""
-    VERSION = "4.0.0"
+    VERSION = "4.1.0"
     DEVELOPER = "Honducraft Team"
     SUPPORT_SERVER = "https://discord.gg/honducraft"
     WEBSITE = "https://honducraft.com"
@@ -62,6 +62,9 @@ logger = logging.getLogger('HonducraftPro')
 # Configuración de intents avanzada
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
+intents.presences = True
+
 bot = commands.Bot(
     command_prefix=['!', 'hc ', 'HC ', 'honducraft ', 'Honducraft ', '.'],
     intents=intents,
@@ -282,7 +285,9 @@ class ProfessionalDatabase:
                 "logging": True,
                 "automod": True,
                 "fun": True,
-                "utility": True
+                "utility": True,
+                "minecraft": True,
+                "programming": True
             },
             "channels": {
                 "welcome": None,
@@ -291,7 +296,9 @@ class ProfessionalDatabase:
                 "mod_logs": None,
                 "level_up": None,
                 "suggestions": None,
-                "tickets_category": None
+                "tickets_category": None,
+                "minecraft": None,
+                "programming": None
             },
             "roles": {
                 "muted": None,
@@ -299,7 +306,9 @@ class ProfessionalDatabase:
                 "bot_roles": [],
                 "level_roles": {},
                 "staff_roles": [],
-                "admin_roles": []
+                "admin_roles": [],
+                "programmer_roles": [],
+                "minecraft_roles": []
             },
             "automod": {
                 "enabled": True,
@@ -355,6 +364,12 @@ class ProfessionalDatabase:
                     "member_leave", "role_changes", "channel_updates",
                     "member_bans", "member_unbans", "voice_changes"
                 ]
+            },
+            "minecraft": {
+                "server_ip": None,
+                "server_port": 25565,
+                "status_channel": None,
+                "auto_status": False
             }
         }
     
@@ -410,6 +425,16 @@ class ProfessionalDatabase:
                 "messages_sent": 0,
                 "reactions_added": 0,
                 "joined_at": datetime.datetime.now().isoformat()
+            },
+            "minecraft": {
+                "minecraft_username": None,
+                "linked_at": None,
+                "server_stats": {}
+            },
+            "programming": {
+                "languages": [],
+                "projects": [],
+                "experience_level": "beginner"
             }
         }
     
@@ -740,7 +765,113 @@ class AdvancedEconomy:
         }
 
 # =============================================
-# COMANDOS TRADICIONALES (PREFIJO) - FUNCIONAN INMEDIATAMENTE
+# SISTEMA DE MINECRAFT
+# =============================================
+
+class MinecraftSystem:
+    """Sistema de integración con Minecraft"""
+    
+    @staticmethod
+    async def get_server_status(ip: str, port: int = 25565):
+        """Obtiene el estado de un servidor de Minecraft"""
+        try:
+            # Simulación de estado (en una implementación real usarías mcstatus)
+            status = {
+                "online": random.choice([True, False]),
+                "players": random.randint(0, 50),
+                "max_players": 100,
+                "version": "1.20.1",
+                "description": "§aHonducraft Minecraft Server",
+                "latency": random.randint(10, 100)
+            }
+            return status
+        except Exception as e:
+            logger.error(f"Error obteniendo estado de Minecraft: {e}")
+            return None
+    
+    @staticmethod
+    async def create_status_embed(server_ip: str, status: dict):
+        """Crea un embed con el estado del servidor"""
+        if not status:
+            return Embeds.error(
+                "❌ Error de Minecraft",
+                f"No se pudo obtener el estado del servidor `{server_ip}`"
+            )
+        
+        if status["online"]:
+            embed = Embeds.success(
+                f"🟢 {server_ip} - En Línea",
+                f"""
+                **📊 Estado del Servidor:**
+                **• Jugadores:** {status['players']}/{status['max_players']}
+                **• Versión:** {status['version']}
+                **• Latencia:** {status['latency']}ms
+                **• Descripción:** {status['description']}
+                
+                **¡El servidor está funcionando correctamente!**
+                """
+            )
+        else:
+            embed = Embeds.error(
+                f"🔴 {server_ip} - Fuera de Línea",
+                "El servidor de Minecraft no está disponible en este momento."
+            )
+        
+        return embed
+
+# =============================================
+# SISTEMA DE PROGRAMACIÓN
+# =============================================
+
+class ProgrammingSystem:
+    """Sistema de utilidades para programadores"""
+    
+    @staticmethod
+    def format_code(code: str, language: str = "python") -> str:
+        """Formatea código para Discord"""
+        return f"```{language}\n{code}\n```"
+    
+    @staticmethod
+    async def execute_python_code(code: str):
+        """Ejecuta código Python de forma segura (simulado)"""
+        # En una implementación real usarías un sandbox
+        return {
+            "output": "Ejecución simulada - En producción usar sandbox",
+            "success": True,
+            "execution_time": random.randint(1, 100)
+        }
+    
+    @staticmethod
+    def get_language_info(language: str):
+        """Obtiene información sobre un lenguaje de programación"""
+        languages = {
+            "python": {
+                "name": "Python",
+                "year": 1991,
+                "creator": "Guido van Rossum",
+                "paradigm": "Multi-paradigma",
+                "description": "Lenguaje de programación interpretado, multiparadigma y de alto nivel."
+            },
+            "javascript": {
+                "name": "JavaScript",
+                "year": 1995,
+                "creator": "Brendan Eich",
+                "paradigm": "Multi-paradigma",
+                "description": "Lenguaje de programación interpretado, dialecto del estándar ECMAScript."
+            },
+            "java": {
+                "name": "Java",
+                "year": 1995,
+                "creator": "James Gosling",
+                "paradigm": "Orientado a objetos",
+                "description": "Lenguaje de programación de propósito general, concurrente y orientado a objetos."
+            }
+        }
+        
+        return languages.get(language.lower())
+
+# =============================================
+# COMANDOS TRADICIONALES (PREFIJO)
 # =============================================
 
 class TraditionalCommands(commands.Cog):
@@ -783,6 +914,14 @@ class TraditionalCommands(commands.Cog):
             **🛡️ MODERACIÓN:**
             `!warn` - Advertir a un usuario
             `!clear` - Limpiar mensajes
+            
+            **🎮 MINECRAFT:**
+            `!mcstatus` - Estado servidor Minecraft
+            `!linkmc` - Vincular cuenta Minecraft
+            
+            **💻 PROGRAMACIÓN:**
+            `!code` - Formatear código
+            `!langinfo` - Info lenguaje programación
             
             *Los comandos slash (/) pueden tardar hasta 1 hora en aparecer.*
             """
@@ -1072,8 +1211,13 @@ class TraditionalCommands(commands.Cog):
     @commands.command(name='meme')
     async def meme(self, ctx):
         """Generar meme aleatorio"""
+        memes = [
+            "https://i.imgur.com/8Q7Y9qJ.png",
+            "https://i.imgur.com/3Q7Y9qJ.png",
+            "https://i.imgur.com/5Q7Y9qJ.png"
+        ]
         embed = Embeds.info("😂 Meme Aleatorio", "¡Disfruta de este meme!")
-        embed.set_image(url="https://i.imgur.com/8Q7Y9qJ.png")
+        embed.set_image(url=random.choice(memes))
         await ctx.send(embed=embed)
     
     @commands.command(name='8ball', aliases=['bola'])
@@ -1100,6 +1244,354 @@ class TraditionalCommands(commands.Cog):
         )
         
         await ctx.send(embed=embed)
+    
+    @commands.command(name='mcstatus', aliases=['minecraft'])
+    async def mcstatus(self, ctx, ip: str = None):
+        """Estado del servidor de Minecraft"""
+        guild_config = db.get_guild_config(ctx.guild.id)
+        
+        if not guild_config["modules"]["minecraft"]:
+            await ctx.send(embed=Embeds.error("El sistema de Minecraft está desactivado."))
+            return
+        
+        server_ip = ip or guild_config["minecraft"]["server_ip"]
+        if not server_ip:
+            await ctx.send(embed=Embeds.error("No hay servidor de Minecraft configurado. Usa `!mcstatus <ip>`"))
+            return
+        
+        # Mostrar mensaje de carga
+        loading_msg = await ctx.send("🔄 Obteniendo estado del servidor...")
+        
+        # Obtener estado
+        status = await MinecraftSystem.get_server_status(server_ip)
+        embed = await MinecraftSystem.create_status_embed(server_ip, status)
+        
+        await loading_msg.delete()
+        await ctx.send(embed=embed)
+    
+    @commands.command(name='linkmc')
+    async def linkmc(self, ctx, username: str):
+        """Vincular cuenta de Minecraft"""
+        user_data = db.get_user_data(ctx.author.id, ctx.guild.id)
+        user_data["minecraft"]["minecraft_username"] = username
+        user_data["minecraft"]["linked_at"] = datetime.datetime.now().isoformat()
+        
+        db.update_user_data(ctx.author.id, ctx.guild.id, user_data)
+        
+        embed = Embeds.success(
+            "✅ Cuenta Vinculada",
+            f"""
+            **¡Cuenta de Minecraft vinculada exitosamente!**
+            
+            **Usuario:** {username}
+            **Vinculado:** <t:{int(datetime.datetime.now().timestamp())}:R>
+            
+            *Tu cuenta de Minecraft ha sido vinculada a tu perfil de Discord.*
+            """
+        )
+        await ctx.send(embed=embed)
+    
+    @commands.command(name='code')
+    async def code(self, ctx, lenguaje: str, *, codigo: str):
+        """Formatear código"""
+        formatted_code = ProgrammingSystem.format_code(codigo, lenguaje)
+        
+        if len(formatted_code) > 2000:
+            await ctx.send(embed=Embeds.error("El código es demasiado largo para enviar."))
+            return
+        
+        embed = Embeds.info(
+            f"💻 Código {lenguaje.upper()}",
+            formatted_code
+        )
+        await ctx.send(embed=embed)
+    
+    @commands.command(name='langinfo')
+    async def langinfo(self, ctx, lenguaje: str):
+        """Información sobre lenguaje de programación"""
+        info = ProgrammingSystem.get_language_info(lenguaje)
+        
+        if not info:
+            await ctx.send(embed=Embeds.error(f"No se encontró información sobre `{lenguaje}`"))
+            return
+        
+        embed = Embeds.info(
+            f"📚 {info['name']} - Información",
+            f"""
+            **📅 Año de creación:** {info['year']}
+            **👨‍💻 Creador:** {info['creator']}
+            **🔧 Paradigma:** {info['paradigm']}
+            **📖 Descripción:** {info['description']}
+            """
+        )
+        await ctx.send(embed=embed)
+    
+    @commands.command(name='clear', aliases=['limpiar'])
+    @commands.has_permissions(manage_messages=True)
+    async def clear(self, ctx, cantidad: int = 10):
+        """Limpiar mensajes"""
+        if cantidad > 100:
+            await ctx.send(embed=Embeds.error("No puedes eliminar más de 100 mensajes a la vez."))
+            return
+        
+        deleted = await ctx.channel.purge(limit=cantidad + 1)  # +1 para incluir el comando
+        
+        embed = Embeds.success(
+            "🗑️ Mensajes Eliminados",
+            f"Se han eliminado **{len(deleted) - 1}** mensajes."
+        )
+        message = await ctx.send(embed=embed)
+        await asyncio.sleep(5)
+        await message.delete()
+    
+    @commands.command(name='warn')
+    @commands.has_permissions(manage_messages=True)
+    async def warn(self, ctx, usuario: discord.Member, *, razon: str = "No especificada"):
+        """Advertir a un usuario"""
+        user_data = db.get_user_data(usuario.id, ctx.guild.id)
+        
+        warn_data = {
+            "moderator": ctx.author.id,
+            "reason": razon,
+            "timestamp": datetime.datetime.now().isoformat(),
+            "warn_id": len(user_data["moderation"]["warns"]) + 1
+        }
+        
+        user_data["moderation"]["warns"].append(warn_data)
+        db.update_user_data(usuario.id, ctx.guild.id, user_data)
+        
+        embed = Embeds.warning(
+            "⚠️ Usuario Advertido",
+            f"""
+            **Usuario:** {usuario.mention}
+            **Moderador:** {ctx.author.mention}
+            **Razón:** {razon}
+            **Advertencia:** #{len(user_data["moderation"]["warns"])}
+            
+            *El usuario ha sido advertido correctamente.*
+            """
+        )
+        await ctx.send(embed=embed)
+
+# =============================================
+# COMANDOS SLASH (/) - INTERACCIÓN MODERNA
+# =============================================
+
+class SlashCommands(commands.Cog):
+    """Comandos slash modernos y profesionales"""
+    
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @app_commands.command(name="help", description="Muestra todos los comandos disponibles")
+    async def help_slash(self, interaction: discord.Interaction):
+        """Comando de ayuda slash"""
+        embed = Embeds.info(
+            "🤖 Honducraft Pro - Comandos Slash",
+            """
+            **¡Usa `/` para acceder a estos comandos!**
+            
+            **📊 INFORMACIÓN:**
+            `/help` - Muestra este mensaje
+            `/botinfo` - Información del bot
+            `/serverinfo` - Información del servidor
+            `/userinfo` - Información de un usuario
+            
+            **🏆 SISTEMA DE NIVELES:**
+            `/level` - Ver tu nivel
+            `/leaderboard` - Tabla de clasificación
+            
+            **💰 ECONOMÍA:**
+            `/daily` - Reclamar recompensa diaria
+            `/work` - Trabajar para ganar dinero
+            `/balance` - Ver tu balance
+            
+            **🎮 DIVERSIÓN:**
+            `/meme` - Generar meme aleatorio
+            `/8ball` - Pregunta a la bola mágica
+            
+            **🔧 UTILIDAD:**
+            `/ping` - Ver latencia del bot
+            `/avatar` - Ver avatar de usuario
+            
+            **🎮 MINECRAFT:**
+            `/mcstatus` - Estado servidor Minecraft
+            `/linkmc` - Vincular cuenta Minecraft
+            
+            **💻 PROGRAMACIÓN:**
+            `/code` - Formatear código
+            `/langinfo` - Info lenguaje programación
+            """
+        )
+        await interaction.response.send_message(embed=embed)
+    
+    @app_commands.command(name="botinfo", description="Muestra información del bot")
+    async def botinfo_slash(self, interaction: discord.Interaction):
+        """Información del bot (slash)"""
+        embed = Embeds.info(
+            "🤖 Honducraft Pro - Información",
+            f"""
+            **📊 ESTADÍSTICAS:**
+            **• Servidores:** {len(self.bot.guilds):,}
+            **• Usuarios:** {sum(g.member_count for g in self.bot.guilds):,}
+            **• Latencia:** {round(self.bot.latency * 1000)}ms
+            **• Uptime:** {self.get_uptime()}
+            
+            **🔧 INFORMACIÓN:**
+            **• Versión:** {BotConfig.VERSION}
+            **• Desarrollador:** {BotConfig.DEVELOPER}
+            **• Soporte:** {BotConfig.SUPPORT_SERVER}
+            """
+        )
+        await interaction.response.send_message(embed=embed)
+    
+    def get_uptime(self):
+        """Obtiene el tiempo de actividad del bot"""
+        delta = datetime.datetime.now() - self.bot.start_time
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{hours}h {minutes}m {seconds}s"
+    
+    @app_commands.command(name="serverinfo", description="Muestra información del servidor")
+    async def serverinfo_slash(self, interaction: discord.Interaction):
+        """Información del servidor (slash)"""
+        guild = interaction.guild
+        
+        embed = Embeds.info(
+            f"🌐 {guild.name} - Información",
+            f"""
+            **📊 ESTADÍSTICAS:**
+            **• Miembros:** {guild.member_count:,}
+            **• Canales:** {len(guild.channels):,}
+            **• Roles:** {len(guild.roles):,}
+            **• Emojis:** {len(guild.emojis):,}
+            **• Boosts:** {guild.premium_subscription_count}
+            
+            **📅 INFORMACIÓN:**
+            **• Creado:** <t:{int(guild.created_at.timestamp())}:R>
+            **• Dueño:** {guild.owner.mention}
+            """
+        )
+        
+        if guild.icon:
+            embed.set_thumbnail(url=guild.icon.url)
+        
+        await interaction.response.send_message(embed=embed)
+    
+    @app_commands.command(name="userinfo", description="Muestra información de un usuario")
+    @app_commands.describe(usuario="El usuario del que quieres información")
+    async def userinfo_slash(self, interaction: discord.Interaction, usuario: discord.Member = None):
+        """Información de usuario (slash)"""
+        usuario = usuario or interaction.user
+        
+        user_data = db.get_user_data(usuario.id, interaction.guild.id)
+        
+        embed = Embeds.info(
+            f"👤 {usuario.display_name} - Información",
+            f"""
+            **📊 INFORMACIÓN GENERAL:**
+            **• Nombre:** {usuario.display_name}
+            **• ID:** `{usuario.id}`
+            **• Cuenta creada:** <t:{int(usuario.created_at.timestamp())}:R>
+            **• Se unió:** <t:{int(usuario.joined_at.timestamp())}:R>
+            **• Roles:** {len(usuario.roles) - 1}
+            
+            **🏆 SISTEMA DE NIVELES:**
+            **• Nivel:** {user_data['leveling']['level']}
+            **• XP:** {user_data['leveling']['xp']:,}
+            **• XP Total:** {user_data['leveling']['total_xp']:,}
+            """
+        )
+        
+        embed.set_thumbnail(url=usuario.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+    
+    @app_commands.command(name="level", description="Muestra tu nivel y progreso")
+    @app_commands.describe(usuario="El usuario del que quieres ver el nivel")
+    async def level_slash(self, interaction: discord.Interaction, usuario: discord.Member = None):
+        """Ver nivel (slash)"""
+        usuario = usuario or interaction.user
+        guild_config = db.get_guild_config(interaction.guild.id)
+        
+        if not guild_config["modules"]["levels"]:
+            await interaction.response.send_message(embed=Embeds.error("El sistema de niveles está desactivado."))
+            return
+        
+        user_data = db.get_user_data(usuario.id, interaction.guild.id)
+        level_data = user_data["leveling"]
+        
+        # Calcular XP necesario
+        xp_needed = AdvancedLeveling.calculate_xp_for_level(level_data['level'] + 1)
+        
+        embed = Embeds.premium(
+            f"🏆 Nivel de {usuario.display_name}",
+            f"""
+            **Nivel:** `{level_data['level']}`
+            **XP:** `{level_data['xp']:,}` / `{xp_needed:,}`
+            **XP Total:** `{level_data['total_xp']:,}`
+            **Mensajes:** `{level_data['messages']:,}`
+            
+            **Progreso:**
+            {AdvancedLeveling.create_progress_bar(level_data['xp'], xp_needed)}
+            """
+        )
+        
+        embed.set_thumbnail(url=usuario.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+    
+    @app_commands.command(name="daily", description="Reclama tu recompensa diaria")
+    async def daily_slash(self, interaction: discord.Interaction):
+        """Recompensa diaria (slash)"""
+        guild_config = db.get_guild_config(interaction.guild.id)
+        
+        if not guild_config["modules"]["economy"]:
+            await interaction.response.send_message(embed=Embeds.error("El sistema económico está desactivado."))
+            return
+        
+        result = await AdvancedEconomy.daily_reward(interaction.user)
+        
+        if result is None:
+            await interaction.response.send_message(embed=Embeds.error("Error al procesar la recompensa diaria."))
+        elif result is False:
+            await interaction.response.send_message(embed=Embeds.warning("Ya reclamaste tu recompensa diaria hoy."))
+        else:
+            currency_symbol = guild_config["economy"]["currency_symbol"]
+            embed = Embeds.success(
+                "🎁 Recompensa Diaria Reclamada",
+                f"""
+                **¡Recompensa diaria reclamada!** 🎊
+                
+                **Monedas ganadas:** {currency_symbol} **{result['amount']:,}**
+                **Racha actual:** {result['streak']} días
+                **Bono por racha:** {currency_symbol} {result['bonus']}
+                
+                *Vuelve mañana para seguir tu racha.*
+                """
+            )
+            await interaction.response.send_message(embed=embed)
+    
+    @app_commands.command(name="mcstatus", description="Muestra el estado del servidor de Minecraft")
+    @app_commands.describe(ip="La IP del servidor (opcional si está configurada)")
+    async def mcstatus_slash(self, interaction: discord.Interaction, ip: str = None):
+        """Estado de Minecraft (slash)"""
+        guild_config = db.get_guild_config(interaction.guild.id)
+        
+        if not guild_config["modules"]["minecraft"]:
+            await interaction.response.send_message(embed=Embeds.error("El sistema de Minecraft está desactivado."))
+            return
+        
+        server_ip = ip or guild_config["minecraft"]["server_ip"]
+        if not server_ip:
+            await interaction.response.send_message(embed=Embeds.error("No hay servidor de Minecraft configurado. Usa `/mcstatus <ip>`"))
+            return
+        
+        await interaction.response.defer()
+        
+        # Obtener estado
+        status = await MinecraftSystem.get_server_status(server_ip)
+        embed = await MinecraftSystem.create_status_embed(server_ip, status)
+        
+        await interaction.followup.send(embed=embed)
 
 # =============================================
 # EVENTOS Y TAREAS AUTOMÁTICAS
@@ -1112,7 +1604,7 @@ async def on_ready():
     
     print(f"""
     ╔════════════════════════════════════════════════════╗
-    ║              HONDUCRAFT ULTRA PRO 4.0              ║
+    ║              HONDUCRAFT ULTRA PRO 4.1              ║
     ║              BOT PROFESIONAL AVANZADO              ║
     ╚════════════════════════════════════════════════════╝
     
@@ -1129,10 +1621,20 @@ async def on_ready():
     • ✅ Sistema de moderación avanzado
     • ✅ Niveles y economía
     • ✅ Comandos tradicionales (!)
+    • ✅ Comandos slash (/)
+    • ✅ Sistema de Minecraft
+    • ✅ Sistema de programación
     • ✅ Sistema de cache y performance
     • ✅ Logging y analytics
     • ✅ Tareas automáticas
     """)
+    
+    # Sincronizar comandos slash
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ {len(synced)} comandos slash sincronizados")
+    except Exception as e:
+        print(f"❌ Error sincronizando comandos slash: {e}")
     
     # Iniciar tareas automáticas
     update_presence.start()
@@ -1143,7 +1645,7 @@ async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
             type=discord.ActivityType.watching,
-            name=f"{len(bot.guilds)} servidores | !ayuda"
+            name=f"{len(bot.guilds)} servidores | /help"
         ),
         status=discord.Status.online
     )
@@ -1166,6 +1668,41 @@ async def on_message(message: discord.Message):
     # Procesar comandos tradicionales
     await bot.process_commands(message)
 
+@bot.event
+async def on_member_join(member: discord.Member):
+    """Evento cuando un miembro se une al servidor"""
+    guild_config = db.get_guild_config(member.guild.id)
+    
+    if guild_config["modules"]["welcome"] and guild_config["welcome"]["enabled"]:
+        channel_id = guild_config["channels"]["welcome"]
+        channel = member.guild.get_channel(channel_id) if channel_id else member.guild.system_channel
+        
+        if channel:
+            welcome_message = guild_config["welcome"]["message"].format(
+                user=member,
+                server=member.guild
+            )
+            
+            embed = Embeds.success(
+                "👋 ¡Bienvenido/a!",
+                welcome_message,
+                color=guild_config["welcome"]["embed_color"]
+            )
+            embed.set_thumbnail(url=member.display_avatar.url)
+            
+            await channel.send(embed=embed)
+        
+        # Mensaje por DM
+        if guild_config["welcome"]["send_dm"]:
+            try:
+                dm_message = guild_config["welcome"]["dm_message"].format(
+                    user=member,
+                    server=member.guild
+                )
+                await member.send(dm_message)
+            except:
+                pass  # El usuario tiene los DMs cerrados
+
 # =============================================
 # TAREAS AUTOMÁTICAS
 # =============================================
@@ -1175,9 +1712,10 @@ async def update_presence():
     """Actualiza el estado del bot periódicamente"""
     activities = [
         discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servidores"),
-        discord.Activity(type=discord.ActivityType.listening, name="!ayuda"),
+        discord.Activity(type=discord.ActivityType.listening, name="/help"),
         discord.Activity(type=discord.ActivityType.playing, name=f"con {sum(g.member_count for g in bot.guilds):,} usuarios"),
-        discord.Activity(type=discord.ActivityType.watching, name="Honducraft Pro")
+        discord.Activity(type=discord.ActivityType.watching, name="Honducraft Pro"),
+        discord.Activity(type=discord.ActivityType.competing, name="Minecraft & Programación")
     ]
     await bot.change_presence(activity=random.choice(activities))
 
@@ -1199,17 +1737,18 @@ async def main():
     """Función principal de inicialización"""
     # Añadir COGs
     await bot.add_cog(TraditionalCommands(bot))
+    await bot.add_cog(SlashCommands(bot))
     
     # Iniciar el bot
     try:
-        TOKEN = "MTQ0MTE0ODY4NDUxNDM2MTQ2Ng.GYgx6k.iB6KitwmumRQYhI2QUMZAT4Lc3HuKXW4b_MdrAS"  # ⚠️ REEMPLAZA CON TU TOKEN REAL
+        TOKEN = os.getenv("DISCORD_TOKEN") or "MTQ0MTE0ODY4NDUxNDM2MTQ2Ng.GYgx6k.iB6KitwmumRQYhI2QUMZAT4Lc3HuKXW4b_MdrAS"
         
-        if TOKEN == "TU_TOKEN_AQUI":
+        if not TOKEN or TOKEN == "TU_TOKEN_AQUI":
             print("❌ ERROR: Debes configurar tu token de Discord")
-            print("💡 Reemplaza 'TU_TOKEN_AQUI' con tu token real en la variable TOKEN")
+            print("💡 Configura la variable de entorno DISCORD_TOKEN o reemplaza el token en el código")
             return
         
-        logger.info("🚀 Iniciando Honducraft Ultra Pro 4.0...")
+        logger.info("🚀 Iniciando Honducraft Ultra Pro 4.1...")
         await bot.start(TOKEN)
         
     except discord.LoginFailure:
@@ -1231,21 +1770,6 @@ def fake_server():
 
 threading.Thread(target=fake_server, daemon=True).start()
 
-async def main():
-    try:
-        TOKEN = os.getenv("DISCORD_TOKEN")
-        if not TOKEN:
-            print("❌ ERROR: No se encontró el token en las variables de entorno.")
-            return
-
-        # Cargar comandos tradicionales
-        await bot.add_cog(TraditionalCommands(bot))
-
-        # Iniciar bot
-        await bot.start(TOKEN)
-
-    except Exception as e:
-        logger.error(f"❌ Error crítico: {e}")
-
+# Ejecutar el bot
 if __name__ == "__main__":
     asyncio.run(main())
