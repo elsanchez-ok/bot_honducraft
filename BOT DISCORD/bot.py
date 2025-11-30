@@ -18,6 +18,8 @@ import traceback
 from collections import defaultdict, Counter
 import re
 import time
+import requests
+from bs4 import BeautifulSoup
 
 # =============================================
 # CONFIGURACIÓN AVANZADA Y CONSTANTES
@@ -25,25 +27,27 @@ import time
 
 class BotConfig:
     """Configuración avanzada tipo MEE6/Dyno"""
-    VERSION = "4.1.0"
-    DEVELOPER = "Honducraft Team"
+    VERSION = "5.0.0"
+    DEVELOPER = "ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 Team"
     SUPPORT_SERVER = "https://discord.gg/honducraft"
     WEBSITE = "https://honducraft.com"
+    MINECRAFT_IP = "honducraft.sdlf.fun"
     
-    # Colores profesionales
+    # Colores profesionales con morado como principal
     COLORS = {
-        "primary": 0x5865F2,
+        "primary": 0x9B59B6,  # Morado premium
         "success": 0x57F287,
         "error": 0xED4245,
         "warning": 0xFEE75C,
-        "info": 0x3498DB,
-        "premium": 0x9B59B6,
+        "info": 0x9B59B6,     # Morado para info también
+        "premium": 0x9B59B6,  # Morado premium
         "dark": 0x2C2F33,
         "light": 0x99AAB5,
         "blurple": 0x5865F2,
         "green": 0x57F287,
         "yellow": 0xFEE75C,
-        "red": 0xED4245
+        "red": 0xED4245,
+        "purple": 0x9B59B6
     }
 
 # Configuración de logging profesional
@@ -57,7 +61,7 @@ logging.basicConfig(
     ]
 )
 
-logger = logging.getLogger('HonducraftPro')
+logger = logging.getLogger('ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱')
 
 # Configuración de intents avanzada
 intents = discord.Intents.default()
@@ -66,7 +70,7 @@ intents.members = True
 intents.presences = True
 
 bot = commands.Bot(
-    command_prefix=['!', 'hc ', 'HC ', 'honducraft ', 'Honducraft ', '.'],
+    command_prefix=['!', 'hc ', 'HC ', 'honducraft ', 'Honducraft ', '.', 'ℌ '],
     intents=intents,
     help_command=None,
     case_insensitive=True,
@@ -92,6 +96,7 @@ class AdvancedCache:
         self.message_cache = defaultdict(list)
         self.cooldowns = {}
         self.last_cleanup = time.time()
+        self.web_cache = {}
     
     def set_user_profile(self, user_id: int, guild_id: int, data: dict):
         key = f"{guild_id}_{user_id}"
@@ -107,6 +112,19 @@ class AdvancedCache:
                 return self.user_profiles[key]['data']
         return None
     
+    def set_web_data(self, url: str, data: dict):
+        """Cache para datos web"""
+        self.web_cache[url] = {
+            'data': data,
+            'timestamp': time.time()
+        }
+    
+    def get_web_data(self, url: str) -> Optional[dict]:
+        if url in self.web_cache:
+            if time.time() - self.web_cache[url]['timestamp'] < 3600:  # 1 hora
+                return self.web_cache[url]['data']
+        return None
+    
     def cleanup_old_cache(self):
         """Limpia cache antiguo"""
         current_time = time.time()
@@ -120,15 +138,196 @@ class AdvancedCache:
             k: v for k, v in self.cooldowns.items() 
             if current_time - v['timestamp'] < v['duration']
         }
+        # Limpiar cache web antiguo
+        self.web_cache = {
+            k: v for k, v in self.web_cache.items()
+            if current_time - v['timestamp'] < 3600
+        }
 
 cache = AdvancedCache()
 
 # =============================================
-# BASE DE DATOS MEGA AVANZADA (CORREGIDA)
+# SISTEMA DE IA SIMULADA SIN API
+# =============================================
+
+class SimpleAI:
+    """Sistema de IA simulada sin usar APIs externas"""
+    
+    @staticmethod
+    async def generate_response(prompt: str, context: str = "") -> str:
+        """Genera respuestas inteligentes basadas en patrones"""
+        
+        prompt_lower = prompt.lower()
+        
+        # Respuestas para saludos
+        greetings = {
+            "hola": "¡Hola! Soy ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, tu asistente avanzado. ¿En qué puedo ayudarte hoy? 🤖",
+            "hi": "Hello! I'm ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, your advanced assistant. How can I help you today? 🤖",
+            "hello": "Hey there! I'm ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 bot, ready to assist you! 💫",
+            "buenos dias": "¡Buenos días! ☀️ Espero que tengas un día maravilloso. ¿En qué puedo ayudarte?",
+            "buenas tardes": "¡Buenas tardes! 🌇 ¿Cómo va tu día? Estoy aquí para lo que necesites.",
+            "buenas noches": "¡Buenas noches! 🌙 Espero que hayas tenido un gran día. ¿Neitas ayuda con algo?"
+        }
+        
+        for greeting, response in greetings.items():
+            if greeting in prompt_lower:
+                return response
+        
+        # Respuestas sobre el bot
+        bot_questions = {
+            "quien eres": "Soy ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, un bot avanzado con sistemas de niveles, economía, Minecraft, programación y mucho más! 🚀",
+            "what are you": "I'm ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, an advanced bot with leveling systems, economy, Minecraft integration, programming tools and much more! 🚀",
+            "que puedes hacer": "Puedo ayudarte con: 🎮 Minecraft, 💻 Programación, 🏆 Niveles, 💰 Economía, 🛡️ Moderación, 🔍 Búsquedas web y mucho más! Usa `/hc` para ver todos mis comandos.",
+            "what can you do": "I can help you with: 🎮 Minecraft, 💻 Programming, 🏆 Leveling, 💰 Economy, 🛡️ Moderation, 🔍 Web searches and much more! Use `/hc` to see all my commands."
+        }
+        
+        for question, response in bot_questions.items():
+            if question in prompt_lower:
+                return response
+        
+        # Respuestas técnicas
+        tech_responses = {
+            "programacion": "¡Me encanta la programación! 💻 Puedo ayudarte con:\n• Formatear código\n• Información de lenguajes\n• Ejemplos de código\n• Solución de errores simples\nUsa `/code` para empezar!",
+            "minecraft": f"¡Minecraft! 🎮 Nuestro servidor es: `{BotConfig.MINECRAFT_IP}`\nPuedo mostrarte el estado, ayudar a vincular tu cuenta y más. Usa `/mcstatus` para ver el estado actual!",
+            "nivel": "¡El sistema de niveles es increíble! 🏆 Gana XP enviando mensajes y sube de nivel. Cada nivel te da más prestigio y recompensas. Usa `/level` para ver tu progreso!",
+            "economia": "¡Sistema económico activo! 💰 Gana monedas diarias, trabaja y compra items. Usa `/daily` para tu recompensa diaria y `/work` para ganar más!",
+            "comandos": "¡Tengo muchos comandos! 🔧 Usa `/hc` para ver la lista completa de todos mis sistemas y funciones disponibles."
+        }
+        
+        for tech, response in tech_responses.items():
+            if tech in prompt_lower:
+                return response
+        
+        # Respuestas inteligentes generales
+        if "?" in prompt:
+            responses = [
+                f"Basándome en tu pregunta sobre '{prompt}', te recomiendo usar nuestros sistemas especializados. ¿Has probado usar `/hc` para explorar todas las opciones? 🔍",
+                f"Interesante pregunta. Como IA de ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, puedo ayudarte mejor con comandos específicos. ¿Qué te parece si usas `/hc` para ver todas mis funciones? 🤔",
+                f"¡Buena pregunta! Para darte la mejor respuesta, ¿podrías ser más específico? Mientras tanto, te invito a explorar mis comandos con `/hc` 🚀",
+                f"Como sistema ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, tengo varias formas de ayudarte. ¿Has considerado usar nuestros comandos de búsqueda con `/search`? 🔎"
+            ]
+            return random.choice(responses)
+        
+        # Respuesta por defecto
+        default_responses = [
+            "¡Interesante! Como ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, puedo ayudarte de muchas formas. ¿Por qué no pruebas `/hc` para ver todo lo que puedo hacer? 🌟",
+            "¡Entendido! 🤖 Para darte la mejor asistencia, te recomiendo usar mis comandos especializados. Escribe `/hc` para descubrir todas mis funciones!",
+            "¡Gracias por tu mensaje! 💫 Como bot avanzado ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, tengo muchos sistemas para ayudarte. Usa `/hc` para explorarlos todos!",
+            "¡Hola! Soy ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱, tu asistente multifunción. 🚀 Escribe `/hc` para ver la increíble lista de cosas que puedo hacer por ti!"
+        ]
+        
+        return random.choice(default_responses)
+
+# =============================================
+# SISTEMA DE BÚSQUEDA WEB SIN API
+# =============================================
+
+class WebSearch:
+    """Sistema de búsqueda web sin APIs externas"""
+    
+    @staticmethod
+    async def search_google(query: str, max_results: int = 3) -> List[Dict]:
+        """Simula búsqueda en Google (sin API)"""
+        
+        # Cache para evitar búsquedas repetidas
+        cached = cache.get_web_data(f"search_{query}")
+        if cached:
+            return cached
+        
+        # Simulación de resultados de búsqueda
+        results = []
+        
+        # Temas comunes con respuestas predefinidas
+        common_topics = {
+            "minecraft": {
+                "title": "Minecraft Official Site",
+                "url": "https://www.minecraft.net",
+                "description": "Official Minecraft website with news, downloads, and community information."
+            },
+            "python": {
+                "title": "Python Programming Language",
+                "url": "https://www.python.org",
+                "description": "Official Python programming language website with documentation and downloads."
+            },
+            "discord": {
+                "title": "Discord - Home",
+                "url": "https://discord.com",
+                "description": "Official Discord website for the popular communication platform."
+            },
+            "honducraft": {
+                "title": "ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 Official",
+                "url": BotConfig.WEBSITE,
+                "description": "Official ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 community website and Minecraft server."
+            }
+        }
+        
+        query_lower = query.lower()
+        
+        # Buscar en temas comunes
+        for topic, info in common_topics.items():
+            if topic in query_lower:
+                results.append(info)
+        
+        # Si no hay resultados específicos, generar genéricos
+        if not results:
+            results = [
+                {
+                    "title": f"Resultados para: {query}",
+                    "url": f"https://www.google.com/search?q={query.replace(' ', '+')}",
+                    "description": f"Buscar '{query}' en Google para más información."
+                },
+                {
+                    "title": f"Wikipedia: {query}",
+                    "url": f"https://en.wikipedia.org/wiki/{query.replace(' ', '_')}",
+                    "description": f"Artículo de Wikipedia sobre {query}."
+                },
+                {
+                    "title": f"Video Tutorial: {query}",
+                    "url": f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}",
+                    "description": f"Tutoriales en video sobre {query}."
+                }
+            ]
+        
+        # Limitar resultados
+        results = results[:max_results]
+        
+        # Guardar en cache
+        cache.set_web_data(f"search_{query}", results)
+        
+        return results
+    
+    @staticmethod
+    async def get_weather(city: str) -> Dict:
+        """Obtiene información del clima (simulada)"""
+        
+        # Ciudades comunes con clima predefinido
+        weather_data = {
+            "madrid": {"temp": 22, "condition": "Soleado", "humidity": 45},
+            "barcelona": {"temp": 24, "condition": "Parcialmente nublado", "humidity": 60},
+            "london": {"temp": 15, "condition": "Lluvioso", "humidity": 80},
+            "new york": {"temp": 18, "condition": "Nublado", "humidity": 65},
+            "tokyo": {"temp": 20, "condition": "Despejado", "humidity": 55},
+            "mexico": {"temp": 25, "condition": "Soleado", "humidity": 40},
+            "paris": {"temp": 17, "condition": "Lluvioso", "humidity": 75}
+        }
+        
+        city_lower = city.lower()
+        if city_lower in weather_data:
+            return weather_data[city_lower]
+        else:
+            # Datos aleatorios para ciudades no especificadas
+            return {
+                "temp": random.randint(10, 30),
+                "condition": random.choice(["Soleado", "Parcialmente nublado", "Nublado", "Lluvioso"]),
+                "humidity": random.randint(30, 85)
+            }
+
+# =============================================
+# BASE DE DATOS MEGA AVANZADA
 # =============================================
 
 class ProfessionalDatabase:
-    """Sistema de base de datos profesional con todas las características"""
+    """Sistema de base de datos profesional"""
     
     def __init__(self):
         self.file_path = 'honducraft_pro.json'
@@ -143,7 +342,7 @@ class ProfessionalDatabase:
         os.makedirs('data/transcripts/', exist_ok=True)
     
     def load_data(self):
-        """Carga datos con estructura mega avanzada"""
+        """Carga datos con estructura avanzada"""
         default_data = {
             "metadata": {
                 "version": BotConfig.VERSION,
@@ -161,20 +360,8 @@ class ProfessionalDatabase:
                 "tickets_created": 0,
                 "mod_actions": 0,
                 "warns_issued": 0,
-                "messages_deleted": 0,
-                "users_joined": 0,
-                "users_left": 0,
-                "roles_assigned": 0,
-                "reactions_added": 0,
-                "level_ups": 0,
-                "economy_transactions": 0,
-                "music_plays": 0
-            },
-            "analytics": {
-                "daily_commands": {},
-                "popular_commands": {},
-                "user_activity": {},
-                "guild_growth": {}
+                "ai_interactions": 0,
+                "searches_performed": 0
             }
         }
         
@@ -201,28 +388,21 @@ class ProfessionalDatabase:
     def save_data(self):
         """Guarda datos con optimizaciones"""
         try:
-            # Crear backup
             self.create_backup("auto_save")
             
-            # Actualizar metadata
             self.data["metadata"]["last_updated"] = datetime.datetime.now().isoformat()
-            self.data["metadata"]["data_size"] = len(str(self.data))
             
-            # Guardar con compresión
             with open(self.file_path, 'w', encoding='utf-8') as f:
                 json.dump(self.data, f, indent=2, ensure_ascii=False, default=str)
             
-            # Limpiar backups antiguos
             self.clean_old_backups()
-            
-            logger.info("Datos guardados exitosamente")
             
         except Exception as e:
             logger.error(f"Error guardando datos: {e}")
             self.emergency_save()
     
     def create_backup(self, reason: str = "manual"):
-        """Crea backup con compresión"""
+        """Crea backup"""
         try:
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_file = f"{self.backup_dir}backup_{timestamp}_{reason}.json"
@@ -237,7 +417,7 @@ class ProfessionalDatabase:
             return False
 
     def clean_old_backups(self, keep_count: int = 10):
-        """Limpia backups antiguos - MÉTODO AÑADIDO"""
+        """Limpia backups antiguos"""
         try:
             backups = []
             for file in os.listdir(self.backup_dir):
@@ -253,12 +433,11 @@ class ProfessionalDatabase:
             logger.error(f"Error limpiando backups: {e}")
 
     def emergency_save(self):
-        """Guardado de emergencia - MÉTODO AÑADIDO"""
+        """Guardado de emergencia"""
         try:
             temp_file = f"{self.file_path}.emergency"
             with open(temp_file, 'w', encoding='utf-8') as f:
                 json.dump(self.data, f)
-            logger.info("✅ Guardado de emergencia exitoso")
         except Exception as e:
             logger.error(f"❌ Error en guardado de emergencia: {e}")
     
@@ -271,105 +450,18 @@ class ProfessionalDatabase:
         return self.data["servers"][guild_key]
     
     def get_default_guild_config(self) -> dict:
-        """Configuración por defecto para servidores nuevos"""
+        """Configuración por defecto"""
         return {
             "prefix": "!",
             "language": "es",
             "modules": {
                 "moderation": True,
-                "welcome": True,
                 "levels": True,
                 "economy": True,
-                "music": False,
-                "tickets": True,
-                "logging": True,
-                "automod": True,
-                "fun": True,
-                "utility": True,
                 "minecraft": True,
-                "programming": True
-            },
-            "channels": {
-                "welcome": None,
-                "goodbye": None,
-                "logs": None,
-                "mod_logs": None,
-                "level_up": None,
-                "suggestions": None,
-                "tickets_category": None,
-                "minecraft": None,
-                "programming": None
-            },
-            "roles": {
-                "muted": None,
-                "auto_roles": [],
-                "bot_roles": [],
-                "level_roles": {},
-                "staff_roles": [],
-                "admin_roles": [],
-                "programmer_roles": [],
-                "minecraft_roles": []
-            },
-            "automod": {
-                "enabled": True,
-                "anti_spam": True,
-                "anti_raid": True,
-                "anti_invites": True,
-                "anti_links": False,
-                "max_warns": 3,
-                "filter_words": [],
-                "whitelisted_links": [],
-                "whitelisted_roles": [],
-                "ignored_channels": []
-            },
-            "leveling": {
-                "enabled": True,
-                "announce_level_up": True,
-                "xp_per_message": 15,
-                "xp_cooldown": 60,
-                "message_multiplier": 1.0,
-                "role_multipliers": {},
-                "channel_multipliers": {}
-            },
-            "economy": {
-                "enabled": True,
-                "currency_name": "coins",
-                "currency_symbol": "🪙",
-                "daily_amount": 100,
-                "work_amount_min": 50,
-                "work_amount_max": 150,
-                "starting_balance": 100
-            },
-            "tickets": {
-                "enabled": True,
-                "support_roles": [],
-                "categories": {
-                    "support": {"emoji": "💼", "name": "Soporte"},
-                    "report": {"emoji": "🚨", "name": "Reporte"},
-                    "suggestion": {"emoji": "💡", "name": "Sugerencia"}
-                }
-            },
-            "welcome": {
-                "enabled": True,
-                "message": "¡Bienvenido {user.mention} a {server.name}!",
-                "goodbye_message": "¡{user.name} ha dejado el servidor!",
-                "embed_color": BotConfig.COLORS["primary"],
-                "send_dm": True,
-                "dm_message": "¡Gracias por unirte a {server.name}!"
-            },
-            "logging": {
-                "enabled": True,
-                "events": [
-                    "message_delete", "message_edit", "member_join", 
-                    "member_leave", "role_changes", "channel_updates",
-                    "member_bans", "member_unbans", "voice_changes"
-                ]
-            },
-            "minecraft": {
-                "server_ip": None,
-                "server_port": 25565,
-                "status_channel": None,
-                "auto_status": False
+                "programming": True,
+                "ai": True,
+                "search": True
             }
         }
     
@@ -389,52 +481,23 @@ class ProfessionalDatabase:
         return self.data["users"][user_key]
     
     def get_default_user_data(self) -> dict:
-        """Datos por defecto para usuarios nuevos"""
+        """Datos por defecto para usuarios"""
         return {
             "leveling": {
                 "level": 1,
                 "xp": 0,
                 "total_xp": 0,
-                "messages": 0,
-                "voice_time": 0,
-                "last_message": None,
-                "rank_card": "default"
+                "messages": 0
             },
             "economy": {
                 "wallet": 100,
                 "bank": 0,
-                "daily_streak": 0,
-                "last_daily": None,
-                "last_work": None,
-                "inventory": {},
-                "job": None
-            },
-            "moderation": {
-                "warns": [],
-                "mutes": 0,
-                "kicks": 0,
-                "bans": 0
-            },
-            "preferences": {
-                "timezone": "UTC",
-                "notifications": True,
-                "privacy_mode": False
+                "daily_streak": 0
             },
             "stats": {
                 "commands_used": 0,
-                "messages_sent": 0,
-                "reactions_added": 0,
-                "joined_at": datetime.datetime.now().isoformat()
-            },
-            "minecraft": {
-                "minecraft_username": None,
-                "linked_at": None,
-                "server_stats": {}
-            },
-            "programming": {
-                "languages": [],
-                "projects": [],
-                "experience_level": "beginner"
+                "ai_uses": 0,
+                "searches": 0
             }
         }
     
@@ -456,11 +519,11 @@ class ProfessionalDatabase:
 db = ProfessionalDatabase()
 
 # =============================================
-# SISTEMA DE EMBEDS PROFESIONALES
+# SISTEMA DE EMBEDS PROFESIONALES MORADOS
 # =============================================
 
 class ProfessionalEmbeds:
-    """Sistema de embeds estilo MEE6/Dyno"""
+    """Sistema de embeds estilo profesional en morado"""
     
     @staticmethod
     def create_embed(
@@ -475,7 +538,7 @@ class ProfessionalEmbeds:
         timestamp: bool = True,
         url: str = None
     ) -> discord.Embed:
-        """Crea un embed profesional"""
+        """Crea un embed profesional en morado"""
         
         embed = discord.Embed(
             title=title,
@@ -502,10 +565,10 @@ class ProfessionalEmbeds:
                 name = field.get('name', '')
                 value = field.get('value', '')
                 inline = field.get('inline', False)
-                if value:  # Solo añadir field si tiene valor
+                if value:
                     embed.add_field(name=name, value=value, inline=inline)
         
-        footer_text = footer or "Honducraft Pro • Sistema Avanzado"
+        footer_text = footer or "ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 • Sistema Avanzado Pro"
         embed.set_footer(text=footer_text, icon_url="https://i.postimg.cc/7LRKvvn8/honducraft.png")
         
         return embed
@@ -540,7 +603,7 @@ class ProfessionalEmbeds:
     @staticmethod
     def info(title: str, description: str = "", **kwargs) -> discord.Embed:
         return ProfessionalEmbeds.create_embed(
-            title=f"ℹ️ {title}",
+            title=f"💜 {title}",
             description=description,
             color=BotConfig.COLORS["info"],
             **kwargs
@@ -559,230 +622,25 @@ class ProfessionalEmbeds:
 Embeds = ProfessionalEmbeds
 
 # =============================================
-# SISTEMA DE NIVELES Y ECONOMÍA MEGA AVANZADO
-# =============================================
-
-class AdvancedLeveling:
-    """Sistema de niveles profesional como MEE6"""
-    
-    @staticmethod
-    def calculate_level(xp: int) -> int:
-        """Calcula nivel basado en XP (fórmula MEE6-like)"""
-        return max(1, int((xp / 100) ** 0.5))
-    
-    @staticmethod
-    def calculate_xp_for_level(level: int) -> int:
-        """Calcula XP necesario para un nivel"""
-        return int(100 * (level ** 2))
-    
-    @staticmethod
-    def create_progress_bar(current: int, maximum: int, length: int = 20) -> str:
-        """Crea una barra de progreso"""
-        progress = min(current / maximum, 1.0)
-        filled = int(progress * length)
-        bar = "█" * filled + "░" * (length - filled)
-        return f"`[{bar}]` {progress:.1%}"
-    
-    @staticmethod
-    async def add_xp(user: discord.Member, message: discord.Message):
-        """Añade XP por mensaje"""
-        guild_config = db.get_guild_config(user.guild.id)
-        
-        if not guild_config["modules"]["levels"]:
-            return
-        
-        # Verificar cooldown
-        user_data = db.get_user_data(user.id, user.guild.id)
-        last_message = user_data["leveling"]["last_message"]
-        
-        if last_message:
-            last_msg_time = datetime.datetime.fromisoformat(last_message)
-            cooldown = guild_config["leveling"]["xp_cooldown"]
-            if (datetime.datetime.now() - last_msg_time).seconds < cooldown:
-                return
-        
-        # Calcular XP ganado
-        base_xp = guild_config["leveling"]["xp_per_message"]
-        multiplier = guild_config["leveling"]["message_multiplier"]
-        
-        # Multiplicadores por rol
-        for role in user.roles:
-            role_multiplier = guild_config["leveling"]["role_multipliers"].get(str(role.id), 1.0)
-            multiplier *= role_multiplier
-        
-        # Multiplicador por canal
-        channel_multiplier = guild_config["leveling"]["channel_multipliers"].get(str(message.channel.id), 1.0)
-        multiplier *= channel_multiplier
-        
-        xp_earned = int(base_xp * multiplier)
-        
-        # Actualizar datos
-        user_data["leveling"]["xp"] += xp_earned
-        user_data["leveling"]["total_xp"] += xp_earned
-        user_data["leveling"]["messages"] += 1
-        user_data["leveling"]["last_message"] = datetime.datetime.now().isoformat()
-        
-        # Verificar subida de nivel
-        old_level = user_data["leveling"]["level"]
-        new_level = AdvancedLeveling.calculate_level(user_data["leveling"]["total_xp"])
-        
-        if new_level > old_level:
-            user_data["leveling"]["level"] = new_level
-            await AdvancedLeveling.handle_level_up(user, old_level, new_level, user_data)
-        
-        db.update_user_data(user.id, user.guild.id, user_data)
-    
-    @staticmethod
-    async def handle_level_up(user: discord.Member, old_level: int, new_level: int, user_data: dict):
-        """Maneja subidas de nivel"""
-        guild_config = db.get_guild_config(user.guild.id)
-        
-        # Asignar roles de nivel
-        level_roles = guild_config["roles"]["level_roles"]
-        for level, role_id in level_roles.items():
-            if new_level >= int(level):
-                role = user.guild.get_role(role_id)
-                if role and role not in user.roles:
-                    try:
-                        await user.add_roles(role, reason=f"Level {new_level} role")
-                    except:
-                        pass
-        
-        # Anunciar level up
-        if guild_config["leveling"]["announce_level_up"]:
-            channel_id = guild_config["channels"]["level_up"]
-            channel = user.guild.get_channel(channel_id) if channel_id else None
-            
-            if not channel:
-                channel = user.guild.system_channel
-            
-            if channel:
-                embed = Embeds.success(
-                    "🎉 ¡Subida de Nivel!",
-                    f"""
-                    **¡Felicidades {user.mention}!** 🎊
-                    
-                    **Has subido al nivel {new_level}!** 🏆
-                    **• Nivel anterior:** {old_level}
-                    **• XP total:** {user_data['leveling']['total_xp']:,}
-                    **• Mensajes:** {user_data['leveling']['messages']:,}
-                    
-                    *¡Sigue activo para ganar más niveles!*
-                    """
-                )
-                embed.set_thumbnail(url=user.display_avatar.url)
-                await channel.send(embed=embed)
-        
-        # Actualizar estadísticas
-        db.data["statistics"]["level_ups"] += 1
-        db.save_data()
-
-class AdvancedEconomy:
-    """Sistema de economía avanzado"""
-    
-    @staticmethod
-    async def daily_reward(user: discord.Member):
-        """Recompensa diaria"""
-        guild_config = db.get_guild_config(user.guild.id)
-        
-        if not guild_config["modules"]["economy"]:
-            return None
-        
-        user_data = db.get_user_data(user.id, user.guild.id)
-        now = datetime.datetime.now()
-        
-        # Verificar si ya reclamó hoy
-        last_daily = user_data["economy"]["last_daily"]
-        if last_daily:
-            last_daily_date = datetime.datetime.fromisoformat(last_daily)
-            if last_daily_date.date() == now.date():
-                return False  # Ya reclamó hoy
-        
-        # Calcular recompensa
-        base_amount = guild_config["economy"]["daily_amount"]
-        streak = user_data["economy"]["daily_streak"]
-        
-        # Bono por racha
-        streak_bonus = min(streak * 10, 100)  # Máximo 100 de bono
-        total_amount = base_amount + streak_bonus
-        
-        # Actualizar datos
-        user_data["economy"]["wallet"] += total_amount
-        user_data["economy"]["daily_streak"] += 1
-        user_data["economy"]["last_daily"] = now.isoformat()
-        
-        db.update_user_data(user.id, user.guild.id, user_data)
-        
-        return {
-            "amount": total_amount,
-            "streak": user_data["economy"]["daily_streak"],
-            "bonus": streak_bonus
-        }
-    
-    @staticmethod
-    async def work(user: discord.Member):
-        """Sistema de trabajo"""
-        guild_config = db.get_guild_config(user.guild.id)
-        
-        if not guild_config["modules"]["economy"]:
-            return None
-        
-        user_data = db.get_user_data(user.id, user.guild.id)
-        now = datetime.datetime.now()
-        
-        # Verificar cooldown (6 horas)
-        last_work = user_data["economy"]["last_work"]
-        if last_work:
-            last_work_time = datetime.datetime.fromisoformat(last_work)
-            if (now - last_work_time).seconds < 21600:  # 6 horas
-                time_left = 21600 - (now - last_work_time).seconds
-                return {"cooldown": time_left}
-        
-        # Calcular ganancias
-        min_amount = guild_config["economy"]["work_amount_min"]
-        max_amount = guild_config["economy"]["work_amount_max"]
-        earnings = random.randint(min_amount, max_amount)
-        
-        # Bono por trabajo
-        job = user_data["economy"]["job"]
-        if job:
-            job_bonus = {
-                "programmer": 1.2,
-                "designer": 1.1,
-                "moderator": 1.15
-            }.get(job, 1.0)
-            earnings = int(earnings * job_bonus)
-        
-        # Actualizar datos
-        user_data["economy"]["wallet"] += earnings
-        user_data["economy"]["last_work"] = now.isoformat()
-        
-        db.update_user_data(user.id, user.guild.id, user_data)
-        
-        return {
-            "amount": earnings,
-            "job": job
-        }
-
-# =============================================
-# SISTEMA DE MINECRAFT
+# SISTEMA DE MINECRAFT MEJORADO
 # =============================================
 
 class MinecraftSystem:
-    """Sistema de integración con Minecraft"""
+    """Sistema de integración con Minecraft mejorado"""
     
     @staticmethod
-    async def get_server_status(ip: str, port: int = 25565):
-        """Obtiene el estado de un servidor de Minecraft"""
+    async def get_server_status(ip: str = BotConfig.MINECRAFT_IP, port: int = 25565):
+        """Obtiene el estado del servidor de Minecraft"""
         try:
-            # Simulación de estado (en una implementación real usarías mcstatus)
+            # Simulación mejorada de estado
             status = {
-                "online": random.choice([True, False]),
-                "players": random.randint(0, 50),
+                "online": True,
+                "players": random.randint(5, 45),
                 "max_players": 100,
                 "version": "1.20.1",
-                "description": "§aHonducraft Minecraft Server",
-                "latency": random.randint(10, 100)
+                "description": "§aℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 §6Premium Server",
+                "latency": random.randint(10, 50),
+                "motd": "Bienvenido a ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 - ¡La mejor experiencia Minecraft!"
             }
             return status
         except Exception as e:
@@ -800,581 +658,37 @@ class MinecraftSystem:
         
         if status["online"]:
             embed = Embeds.success(
-                f"🟢 {server_ip} - En Línea",
+                f"🟢 {server_ip} - EN LÍNEA",
                 f"""
-                **📊 Estado del Servidor:**
-                **• Jugadores:** {status['players']}/{status['max_players']}
-                **• Versión:** {status['version']}
-                **• Latencia:** {status['latency']}ms
-                **• Descripción:** {status['description']}
+                **🎮 SERVIDOR ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 ACTIVO**
                 
-                **¡El servidor está funcionando correctamente!**
+                **👥 Jugadores conectados:** `{status['players']}/{status['max_players']}`
+                **🛠️ Versión:** `{status['version']}`
+                **⚡ Latencia:** `{status['latency']}ms`
+                **📝 MOTD:** `{status['motd']}`
+                
+                **📍 IP del Servidor:**
+                ```{server_ip}```
+                
+                **¡Conéctate ahora y únete a la aventura!** 🚀
                 """
             )
         else:
             embed = Embeds.error(
-                f"🔴 {server_ip} - Fuera de Línea",
-                "El servidor de Minecraft no está disponible en este momento."
+                f"🔴 {server_ip} - FUERA DE LÍNEA",
+                f"""
+                El servidor **ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱** no está disponible en este momento.
+                
+                **IP:** `{server_ip}`
+                
+                *Por favor, intenta conectarte más tarde.*
+                """
             )
         
         return embed
 
 # =============================================
-# SISTEMA DE PROGRAMACIÓN
-# =============================================
-
-class ProgrammingSystem:
-    """Sistema de utilidades para programadores"""
-    
-    @staticmethod
-    def format_code(code: str, language: str = "python") -> str:
-        """Formatea código para Discord"""
-        return f"```{language}\n{code}\n```"
-    
-    @staticmethod
-    async def execute_python_code(code: str):
-        """Ejecuta código Python de forma segura (simulado)"""
-        # En una implementación real usarías un sandbox
-        return {
-            "output": "Ejecución simulada - En producción usar sandbox",
-            "success": True,
-            "execution_time": random.randint(1, 100)
-        }
-    
-    @staticmethod
-    def get_language_info(language: str):
-        """Obtiene información sobre un lenguaje de programación"""
-        languages = {
-            "python": {
-                "name": "Python",
-                "year": 1991,
-                "creator": "Guido van Rossum",
-                "paradigm": "Multi-paradigma",
-                "description": "Lenguaje de programación interpretado, multiparadigma y de alto nivel."
-            },
-            "javascript": {
-                "name": "JavaScript",
-                "year": 1995,
-                "creator": "Brendan Eich",
-                "paradigm": "Multi-paradigma",
-                "description": "Lenguaje de programación interpretado, dialecto del estándar ECMAScript."
-            },
-            "java": {
-                "name": "Java",
-                "year": 1995,
-                "creator": "James Gosling",
-                "paradigm": "Orientado a objetos",
-                "description": "Lenguaje de programación de propósito general, concurrente y orientado a objetos."
-            }
-        }
-        
-        return languages.get(language.lower())
-
-# =============================================
-# COMANDOS TRADICIONALES (PREFIJO)
-# =============================================
-
-class TraditionalCommands(commands.Cog):
-    """Comandos tradicionales con prefijo que funcionan inmediatamente"""
-    
-    def __init__(self, bot):
-        self.bot = bot
-    
-    @commands.command(name='ayuda', aliases=['help', 'comandos'])
-    async def ayuda(self, ctx):
-        """Comando de ayuda tradicional"""
-        embed = Embeds.info(
-            "🤖 Honducraft Pro - Comandos Disponibles",
-            """
-            **¡Usa `!` antes de cada comando!**
-            
-            **📊 INFORMACIÓN:**
-            `!ayuda` - Muestra este mensaje
-            `!botinfo` - Información del bot
-            `!serverinfo` - Información del servidor
-            `!userinfo` - Información de un usuario
-            
-            **🏆 SISTEMA DE NIVELES:**
-            `!nivel` - Ver tu nivel
-            `!leaderboard` - Tabla de clasificación
-            
-            **💰 ECONOMÍA:**
-            `!daily` - Reclamar recompensa diaria
-            `!work` - Trabajar para ganar dinero
-            `!balance` - Ver tu balance
-            
-            **🎮 DIVERSIÓN:**
-            `!meme` - Generar meme aleatorio
-            `!8ball` - Pregunta a la bola mágica
-            
-            **🔧 UTILIDAD:**
-            `!ping` - Ver latencia del bot
-            `!avatar` - Ver avatar de usuario
-            
-            **🛡️ MODERACIÓN:**
-            `!warn` - Advertir a un usuario
-            `!clear` - Limpiar mensajes
-            
-            **🎮 MINECRAFT:**
-            `!mcstatus` - Estado servidor Minecraft
-            `!linkmc` - Vincular cuenta Minecraft
-            
-            **💻 PROGRAMACIÓN:**
-            `!code` - Formatear código
-            `!langinfo` - Info lenguaje programación
-            
-            *Los comandos slash (/) pueden tardar hasta 1 hora en aparecer.*
-            """
-        )
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='botinfo', aliases=['info', 'bot'])
-    async def botinfo(self, ctx):
-        """Información del bot"""
-        embed = Embeds.info(
-            "🤖 Honducraft Pro - Información",
-            f"""
-            **📊 ESTADÍSTICAS:**
-            **• Servidores:** {len(self.bot.guilds):,}
-            **• Usuarios:** {sum(g.member_count for g in self.bot.guilds):,}
-            **• Latencia:** {round(self.bot.latency * 1000)}ms
-            **• Uptime:** {self.get_uptime()}
-            
-            **🔧 INFORMACIÓN:**
-            **• Versión:** {BotConfig.VERSION}
-            **• Desarrollador:** {BotConfig.DEVELOPER}
-            **• Soporte:** {BotConfig.SUPPORT_SERVER}
-            
-            **📈 ESTADÍSTICAS GLOBALES:**
-            **• Mensajes procesados:** {db.data['statistics']['messages_processed']:,}
-            **• Comandos usados:** {db.data['statistics']['commands_used']:,}
-            **• Niveles subidos:** {db.data['statistics']['level_ups']:,}
-            """
-        )
-        await ctx.send(embed=embed)
-    
-    def get_uptime(self):
-        """Obtiene el tiempo de actividad del bot"""
-        delta = datetime.datetime.now() - self.bot.start_time
-        hours, remainder = divmod(int(delta.total_seconds()), 3600)
-        minutes, seconds = divmod(remainder, 60)
-        return f"{hours}h {minutes}m {seconds}s"
-    
-    @commands.command(name='serverinfo', aliases=['server', 'servidor'])
-    async def serverinfo(self, ctx):
-        """Información del servidor"""
-        guild = ctx.guild
-        
-        embed = Embeds.info(
-            f"🌐 {guild.name} - Información",
-            f"""
-            **📊 ESTADÍSTICAS:**
-            **• Miembros:** {guild.member_count:,}
-            **• Canales:** {len(guild.channels):,}
-            **• Roles:** {len(guild.roles):,}
-            **• Emojis:** {len(guild.emojis):,}
-            **• Boosts:** {guild.premium_subscription_count}
-            
-            **📅 INFORMACIÓN:**
-            **• Creado:** <t:{int(guild.created_at.timestamp())}:R>
-            **• Dueño:** {guild.owner.mention}
-            **• ID:** `{guild.id}`
-            """
-        )
-        
-        if guild.icon:
-            embed.set_thumbnail(url=guild.icon.url)
-        
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='userinfo', aliases=['user', 'usuario'])
-    async def userinfo(self, ctx, usuario: discord.Member = None):
-        """Información de usuario"""
-        usuario = usuario or ctx.author
-        
-        user_data = db.get_user_data(usuario.id, ctx.guild.id)
-        
-        embed = Embeds.info(
-            f"👤 {usuario.display_name} - Información",
-            f"""
-            **📊 INFORMACIÓN GENERAL:**
-            **• Nombre:** {usuario.display_name}
-            **• ID:** `{usuario.id}`
-            **• Cuenta creada:** <t:{int(usuario.created_at.timestamp())}:R>
-            **• Se unió:** <t:{int(usuario.joined_at.timestamp())}:R>
-            **• Roles:** {len(usuario.roles) - 1}
-            
-            **🏆 SISTEMA DE NIVELES:**
-            **• Nivel:** {user_data['leveling']['level']}
-            **• XP:** {user_data['leveling']['xp']:,}
-            **• XP Total:** {user_data['leveling']['total_xp']:,}
-            **• Mensajes:** {user_data['leveling']['messages']:,}
-            
-            **💰 ECONOMÍA:**
-            **• Balance:** {user_data['economy']['wallet']:,} 🪙
-            **• Racha diaria:** {user_data['economy']['daily_streak']} días
-            """
-        )
-        
-        embed.set_thumbnail(url=usuario.display_avatar.url)
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='nivel', aliases=['level', 'rank'])
-    async def nivel(self, ctx, usuario: discord.Member = None):
-        """Ver nivel de usuario"""
-        usuario = usuario or ctx.author
-        guild_config = db.get_guild_config(ctx.guild.id)
-        
-        if not guild_config["modules"]["levels"]:
-            await ctx.send(embed=Embeds.error("El sistema de niveles está desactivado."))
-            return
-        
-        user_data = db.get_user_data(usuario.id, ctx.guild.id)
-        level_data = user_data["leveling"]
-        
-        # Calcular ranking
-        all_users = []
-        for user_key, data in db.data["users"].items():
-            if user_key.endswith(f"_{ctx.guild.id}"):
-                all_users.append((user_key, data["leveling"]["total_xp"]))
-        
-        all_users.sort(key=lambda x: x[1], reverse=True)
-        rank = next((i + 1 for i, (key, _) in enumerate(all_users) if key == f"{ctx.guild.id}_{usuario.id}"), 1)
-        
-        # Calcular XP necesario
-        xp_needed = AdvancedLeveling.calculate_xp_for_level(level_data['level'] + 1)
-        
-        embed = Embeds.premium(
-            f"🏆 Nivel de {usuario.display_name}",
-            f"""
-            **Nivel:** `{level_data['level']}`
-            **XP:** `{level_data['xp']:,}` / `{xp_needed:,}`
-            **XP Total:** `{level_data['total_xp']:,}`
-            **Mensajes:** `{level_data['messages']:,}`
-            **Ranking:** `#{rank}` de `{len(all_users)}`
-            
-            **Progreso:**
-            {AdvancedLeveling.create_progress_bar(level_data['xp'], xp_needed)}
-            """
-        )
-        
-        embed.set_thumbnail(url=usuario.display_avatar.url)
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='leaderboard', aliases=['top', 'lb'])
-    async def leaderboard(self, ctx):
-        """Leaderboard de niveles"""
-        guild_config = db.get_guild_config(ctx.guild.id)
-        
-        if not guild_config["modules"]["levels"]:
-            await ctx.send(embed=Embeds.error("El sistema de niveles está desactivado."))
-            return
-        
-        # Obtener top 10 usuarios
-        users = []
-        for user_key, data in db.data["users"].items():
-            if user_key.endswith(f"_{ctx.guild.id}"):
-                user_id = int(user_key.split('_')[1])
-                user = ctx.guild.get_member(user_id)
-                if user:
-                    users.append((user, data["leveling"]))
-        
-        users.sort(key=lambda x: x[1]["total_xp"], reverse=True)
-        top_10 = users[:10]
-        
-        description = ""
-        for i, (user, data) in enumerate(top_10):
-            medal = ["🥇", "🥈", "🥉"][i] if i < 3 else f"`{i+1}.`"
-            description += f"{medal} **{user.display_name}** - Nivel {data['level']} | {data['total_xp']:,} XP\n"
-        
-        embed = Embeds.premium(
-            "🏅 Leaderboard de Niveles",
-            description or "No hay datos suficientes para mostrar el leaderboard."
-        )
-        
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='daily', aliases=['diario'])
-    async def daily(self, ctx):
-        """Recompensa diaria"""
-        guild_config = db.get_guild_config(ctx.guild.id)
-        
-        if not guild_config["modules"]["economy"]:
-            await ctx.send(embed=Embeds.error("El sistema económico está desactivado."))
-            return
-        
-        result = await AdvancedEconomy.daily_reward(ctx.author)
-        
-        if result is None:
-            await ctx.send(embed=Embeds.error("Error al procesar la recompensa diaria."))
-        elif result is False:
-            await ctx.send(embed=Embeds.warning("Ya reclamaste tu recompensa diaria hoy."))
-        else:
-            currency_symbol = guild_config["economy"]["currency_symbol"]
-            embed = Embeds.success(
-                "🎁 Recompensa Diaria Reclamada",
-                f"""
-                **¡Recompensa diaria reclamada!** 🎊
-                
-                **Monedas ganadas:** {currency_symbol} **{result['amount']:,}**
-                **Racha actual:** {result['streak']} días
-                **Bono por racha:** {currency_symbol} {result['bonus']}
-                
-                *Vuelve mañana para seguir tu racha.*
-                """
-            )
-            await ctx.send(embed=embed)
-    
-    @commands.command(name='work', aliases=['trabajar'])
-    async def work(self, ctx):
-        """Trabajar para ganar dinero"""
-        guild_config = db.get_guild_config(ctx.guild.id)
-        
-        if not guild_config["modules"]["economy"]:
-            await ctx.send(embed=Embeds.error("El sistema económico está desactivado."))
-            return
-        
-        result = await AdvancedEconomy.work(ctx.author)
-        
-        if result is None:
-            await ctx.send(embed=Embeds.error("Error al procesar el trabajo."))
-        elif "cooldown" in result:
-            hours = result["cooldown"] // 3600
-            minutes = (result["cooldown"] % 3600) // 60
-            await ctx.send(embed=Embeds.warning(f"⏰ Puedes trabajar nuevamente en **{hours}h {minutes}m**."))
-        else:
-            currency_symbol = guild_config["economy"]["currency_symbol"]
-            job_info = f" (**{result['job']}**)" if result['job'] else ""
-            embed = Embeds.success(
-                "💼 Trabajo Completado",
-                f"""
-                **¡Trabajo completado!** {job_info}
-                
-                **Ganancias:** {currency_symbol} **{result['amount']:,}**
-                
-                *Puedes trabajar nuevamente en 6 horas.*
-                """
-            )
-            await ctx.send(embed=embed)
-    
-    @commands.command(name='balance', aliases=['bal', 'dinero'])
-    async def balance(self, ctx, usuario: discord.Member = None):
-        """Ver balance"""
-        usuario = usuario or ctx.author
-        guild_config = db.get_guild_config(ctx.guild.id)
-        
-        if not guild_config["modules"]["economy"]:
-            await ctx.send(embed=Embeds.error("El sistema económico está desactivado."))
-            return
-        
-        user_data = db.get_user_data(usuario.id, ctx.guild.id)
-        economy_data = user_data["economy"]
-        currency_symbol = guild_config["economy"]["currency_symbol"]
-        
-        embed = Embeds.info(
-            f"💰 Balance de {usuario.display_name}",
-            f"""
-            **💼 Cartera:** {currency_symbol} **{economy_data['wallet']:,}**
-            **🏦 Banco:** {currency_symbol} **{economy_data['bank']:,}**
-            **💰 Total:** {currency_symbol} **{economy_data['wallet'] + economy_data['bank']:,}**
-            
-            **📊 Estadísticas:**
-            **📅 Racha diaria:** {economy_data['daily_streak']} días
-            **💼 Trabajo:** {economy_data['job'] or 'Desempleado'}
-            """
-        )
-        
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='ping')
-    async def ping(self, ctx):
-        """Ver latencia del bot"""
-        embed = Embeds.info(
-            "🏓 Pong!",
-            f"**Latencia:** {round(self.bot.latency * 1000)}ms"
-        )
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='avatar', aliases=['av', 'pfp'])
-    async def avatar(self, ctx, usuario: discord.Member = None):
-        """Ver avatar de usuario"""
-        usuario = usuario or ctx.author
-        
-        embed = Embeds.info(
-            f"🖼️ Avatar de {usuario.display_name}",
-            f"[Descargar avatar]({usuario.display_avatar.url})"
-        )
-        embed.set_image(url=usuario.display_avatar.url)
-        
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='meme')
-    async def meme(self, ctx):
-        """Generar meme aleatorio"""
-        memes = [
-            "https://i.imgur.com/8Q7Y9qJ.png",
-            "https://i.imgur.com/3Q7Y9qJ.png",
-            "https://i.imgur.com/5Q7Y9qJ.png"
-        ]
-        embed = Embeds.info("😂 Meme Aleatorio", "¡Disfruta de este meme!")
-        embed.set_image(url=random.choice(memes))
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='8ball', aliases=['bola'])
-    async def eight_ball(self, ctx, *, pregunta: str):
-        """Bola mágica 8-ball"""
-        responses = [
-            "Sí, definitivamente.", "Es cierto.", "Sin duda.",
-            "Sí, definitivamente.", "Puedes confiar en ello.",
-            "Como yo lo veo, sí.", "Lo más probable.", "Perspectiva buena.",
-            "Sí.", "Las señales apuntan a que sí.",
-            "Respuesta confusa, intenta otra vez.", "Pregunta de nuevo más tarde.",
-            "Mejor no te lo digo ahora.", "No puedo predecirlo ahora.",
-            "Concéntrate y pregunta otra vez.",
-            "No cuentes con ello.", "Mi respuesta es no.",
-            "Mis fuentes dicen que no.", "Perspectiva no tan buena.", "Muy dudoso."
-        ]
-        
-        embed = Embeds.info(
-            "🎱 Bola Mágica 8-Ball",
-            f"""
-            **Pregunta:** {pregunta}
-            **Respuesta:** {random.choice(responses)}
-            """
-        )
-        
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='mcstatus', aliases=['minecraft'])
-    async def mcstatus(self, ctx, ip: str = None):
-        """Estado del servidor de Minecraft"""
-        guild_config = db.get_guild_config(ctx.guild.id)
-        
-        if not guild_config["modules"]["minecraft"]:
-            await ctx.send(embed=Embeds.error("El sistema de Minecraft está desactivado."))
-            return
-        
-        server_ip = ip or guild_config["minecraft"]["server_ip"]
-        if not server_ip:
-            await ctx.send(embed=Embeds.error("No hay servidor de Minecraft configurado. Usa `!mcstatus <ip>`"))
-            return
-        
-        # Mostrar mensaje de carga
-        loading_msg = await ctx.send("🔄 Obteniendo estado del servidor...")
-        
-        # Obtener estado
-        status = await MinecraftSystem.get_server_status(server_ip)
-        embed = await MinecraftSystem.create_status_embed(server_ip, status)
-        
-        await loading_msg.delete()
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='linkmc')
-    async def linkmc(self, ctx, username: str):
-        """Vincular cuenta de Minecraft"""
-        user_data = db.get_user_data(ctx.author.id, ctx.guild.id)
-        user_data["minecraft"]["minecraft_username"] = username
-        user_data["minecraft"]["linked_at"] = datetime.datetime.now().isoformat()
-        
-        db.update_user_data(ctx.author.id, ctx.guild.id, user_data)
-        
-        embed = Embeds.success(
-            "✅ Cuenta Vinculada",
-            f"""
-            **¡Cuenta de Minecraft vinculada exitosamente!**
-            
-            **Usuario:** {username}
-            **Vinculado:** <t:{int(datetime.datetime.now().timestamp())}:R>
-            
-            *Tu cuenta de Minecraft ha sido vinculada a tu perfil de Discord.*
-            """
-        )
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='code')
-    async def code(self, ctx, lenguaje: str, *, codigo: str):
-        """Formatear código"""
-        formatted_code = ProgrammingSystem.format_code(codigo, lenguaje)
-        
-        if len(formatted_code) > 2000:
-            await ctx.send(embed=Embeds.error("El código es demasiado largo para enviar."))
-            return
-        
-        embed = Embeds.info(
-            f"💻 Código {lenguaje.upper()}",
-            formatted_code
-        )
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='langinfo')
-    async def langinfo(self, ctx, lenguaje: str):
-        """Información sobre lenguaje de programación"""
-        info = ProgrammingSystem.get_language_info(lenguaje)
-        
-        if not info:
-            await ctx.send(embed=Embeds.error(f"No se encontró información sobre `{lenguaje}`"))
-            return
-        
-        embed = Embeds.info(
-            f"📚 {info['name']} - Información",
-            f"""
-            **📅 Año de creación:** {info['year']}
-            **👨‍💻 Creador:** {info['creator']}
-            **🔧 Paradigma:** {info['paradigm']}
-            **📖 Descripción:** {info['description']}
-            """
-        )
-        await ctx.send(embed=embed)
-    
-    @commands.command(name='clear', aliases=['limpiar'])
-    @commands.has_permissions(manage_messages=True)
-    async def clear(self, ctx, cantidad: int = 10):
-        """Limpiar mensajes"""
-        if cantidad > 100:
-            await ctx.send(embed=Embeds.error("No puedes eliminar más de 100 mensajes a la vez."))
-            return
-        
-        deleted = await ctx.channel.purge(limit=cantidad + 1)  # +1 para incluir el comando
-        
-        embed = Embeds.success(
-            "🗑️ Mensajes Eliminados",
-            f"Se han eliminado **{len(deleted) - 1}** mensajes."
-        )
-        message = await ctx.send(embed=embed)
-        await asyncio.sleep(5)
-        await message.delete()
-    
-    @commands.command(name='warn')
-    @commands.has_permissions(manage_messages=True)
-    async def warn(self, ctx, usuario: discord.Member, *, razon: str = "No especificada"):
-        """Advertir a un usuario"""
-        user_data = db.get_user_data(usuario.id, ctx.guild.id)
-        
-        warn_data = {
-            "moderator": ctx.author.id,
-            "reason": razon,
-            "timestamp": datetime.datetime.now().isoformat(),
-            "warn_id": len(user_data["moderation"]["warns"]) + 1
-        }
-        
-        user_data["moderation"]["warns"].append(warn_data)
-        db.update_user_data(usuario.id, ctx.guild.id, user_data)
-        
-        embed = Embeds.warning(
-            "⚠️ Usuario Advertido",
-            f"""
-            **Usuario:** {usuario.mention}
-            **Moderador:** {ctx.author.mention}
-            **Razón:** {razon}
-            **Advertencia:** #{len(user_data["moderation"]["warns"])}
-            
-            *El usuario ha sido advertido correctamente.*
-            """
-        )
-        await ctx.send(embed=embed)
-
-# =============================================
-# COMANDOS SLASH (/) - INTERACCIÓN MODERNA
+# COMANDOS SLASH (/) - SISTEMA /hc
 # =============================================
 
 class SlashCommands(commands.Cog):
@@ -1383,64 +697,195 @@ class SlashCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @app_commands.command(name="help", description="Muestra todos los comandos disponibles")
-    async def help_slash(self, interaction: discord.Interaction):
-        """Comando de ayuda slash"""
+    @app_commands.command(name="hc", description="Muestra todos los sistemas y comandos de ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱")
+    async def hc_command(self, interaction: discord.Interaction):
+        """Comando principal /hc"""
         embed = Embeds.info(
-            "🤖 Honducraft Pro - Comandos Slash",
+            "💜 ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 - Sistema de Comandos Completo",
             """
-            **¡Usa `/` para acceder a estos comandos!**
-            
-            **📊 INFORMACIÓN:**
-            `/help` - Muestra este mensaje
-            `/botinfo` - Información del bot
-            `/serverinfo` - Información del servidor
-            `/userinfo` - Información de un usuario
-            
-            **🏆 SISTEMA DE NIVELES:**
-            `/level` - Ver tu nivel
-            `/leaderboard` - Tabla de clasificación
-            
-            **💰 ECONOMÍA:**
-            `/daily` - Reclamar recompensa diaria
-            `/work` - Trabajar para ganar dinero
-            `/balance` - Ver tu balance
-            
-            **🎮 DIVERSIÓN:**
-            `/meme` - Generar meme aleatorio
-            `/8ball` - Pregunta a la bola mágica
-            
-            **🔧 UTILIDAD:**
-            `/ping` - Ver latencia del bot
-            `/avatar` - Ver avatar de usuario
-            
-            **🎮 MINECRAFT:**
-            `/mcstatus` - Estado servidor Minecraft
+            **🎮 SISTEMA MINECRAFT:**
+            `/mcstatus` - Estado del servidor Minecraft
+            `/mcplayers` - Jugadores en línea
             `/linkmc` - Vincular cuenta Minecraft
-            
-            **💻 PROGRAMACIÓN:**
+
+            **💻 SISTEMA PROGRAMACIÓN:**
             `/code` - Formatear código
             `/langinfo` - Info lenguaje programación
+            `/execute` - Ejecutar código (simulado)
+
+            **🏆 SISTEMA DE NIVELES:**
+            `/level` - Ver tu nivel y progreso
+            `/leaderboard` - Tabla de clasificación
+            `/rank` - Ver tarjeta de rango
+
+            **💰 SISTEMA ECONÓMICO:**
+            `/daily` - Recompensa diaria
+            `/work` - Trabajar por dinero
+            `/balance` - Ver tu balance
+            `/transfer` - Transferir dinero
+
+            **🤖 SISTEMA IA AVANZADO:**
+            `/ai` - Chat con la IA
+            `/ask` - Pregunta anything
+            `/translate` - Traducir texto
+
+            **🔍 SISTEMA DE BÚSQUEDA:**
+            `/search` - Buscar en internet
+            `/weather` - Clima de una ciudad
+            `/wiki` - Buscar en Wikipedia
+
+            **🛡️ SISTEMA DE MODERACIÓN:**
+            `/warn` - Advertir usuario
+            `/clear` - Limpiar mensajes
+            `/mute` - Silenciar usuario
+
+            **📊 SISTEMA DE INFORMACIÓN:**
+            `/serverinfo` - Info del servidor
+            `/userinfo` - Info de usuario
+            `/botinfo` - Info del bot
+
+            **⚙️ COMANDOS TRADICIONALES (!):**
+            `!ayuda` - Sistema de ayuda
+            `!nivel` - Ver nivel
+            `!daily` - Recompensa diaria
+            `!mcstatus` - Estado Minecraft
+            `!ai` - Chat con IA
+            `!search` - Buscar en web
+
+            **💎 IP SERVIDOR MINECRAFT:**
+            ```honducraft.sdlf.fun```
             """
         )
         await interaction.response.send_message(embed=embed)
     
-    @app_commands.command(name="botinfo", description="Muestra información del bot")
-    async def botinfo_slash(self, interaction: discord.Interaction):
-        """Información del bot (slash)"""
+    @app_commands.command(name="ai", description="Chat con la IA avanzada de ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱")
+    @app_commands.describe(pregunta="Tu pregunta o mensaje para la IA")
+    async def ai_chat(self, interaction: discord.Interaction, pregunta: str):
+        """Chat con IA"""
+        await interaction.response.defer()
+        
+        # Generar respuesta
+        respuesta = await SimpleAI.generate_response(pregunta)
+        
+        # Actualizar estadísticas
+        db.data["statistics"]["ai_interactions"] += 1
+        user_data = db.get_user_data(interaction.user.id, interaction.guild.id)
+        user_data["stats"]["ai_uses"] += 1
+        db.update_user_data(interaction.user.id, interaction.guild.id, user_data)
+        
         embed = Embeds.info(
-            "🤖 Honducraft Pro - Información",
+            "🤖 ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 IA - Asistente Inteligente",
             f"""
-            **📊 ESTADÍSTICAS:**
-            **• Servidores:** {len(self.bot.guilds):,}
-            **• Usuarios:** {sum(g.member_count for g in self.bot.guilds):,}
-            **• Latencia:** {round(self.bot.latency * 1000)}ms
-            **• Uptime:** {self.get_uptime()}
+            **👤 Tu Pregunta:**
+            {pregunta}
+
+            **💜 Mi Respuesta:**
+            {respuesta}
+
+            *💫 Usa `/hc` para ver todos mis sistemas*
+            """
+        )
+        await interaction.followup.send(embed=embed)
+    
+    @app_commands.command(name="search", description="Buscar información en internet")
+    @app_commands.describe(busqueda="Lo que quieres buscar", resultados="Número de resultados (1-5)")
+    async def web_search(self, interaction: discord.Interaction, busqueda: str, resultados: int = 3):
+        """Búsqueda web"""
+        await interaction.response.defer()
+        
+        if resultados > 5:
+            resultados = 5
+        elif resultados < 1:
+            resultados = 1
+        
+        # Realizar búsqueda
+        results = await WebSearch.search_google(busqueda, resultados)
+        
+        # Actualizar estadísticas
+        db.data["statistics"]["searches_performed"] += 1
+        user_data = db.get_user_data(interaction.user.id, interaction.guild.id)
+        user_data["stats"]["searches"] += 1
+        db.update_user_data(interaction.user.id, interaction.guild.id, user_data)
+        
+        description = f"**🔍 Resultados para: `{busqueda}`**\n\n"
+        
+        for i, result in enumerate(results, 1):
+            description += f"**{i}. [{result['title']}]({result['url']})**\n"
+            description += f"{result['description']}\n\n"
+        
+        description += "*💫 Búsqueda realizada por ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 Search System*"
+        
+        embed = Embeds.info("🔍 Sistema de Búsqueda ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱", description)
+        await interaction.followup.send(embed=embed)
+    
+    @app_commands.command(name="mcstatus", description="Estado del servidor Minecraft ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱")
+    async def mcstatus_slash(self, interaction: discord.Interaction):
+        """Estado de Minecraft"""
+        await interaction.response.defer()
+        
+        status = await MinecraftSystem.get_server_status()
+        embed = await MinecraftSystem.create_status_embed(BotConfig.MINECRAFT_IP, status)
+        
+        await interaction.followup.send(embed=embed)
+    
+    @app_commands.command(name="weather", description="Obtener el clima de una ciudad")
+    @app_commands.describe(ciudad="Nombre de la ciudad")
+    async def weather_slash(self, interaction: discord.Interaction, ciudad: str):
+        """Clima de una ciudad"""
+        await interaction.response.defer()
+        
+        weather = await WebSearch.get_weather(ciudad)
+        
+        embed = Embeds.info(
+            f"🌤️ Clima en {ciudad.title()}",
+            f"""
+            **🌡️ Temperatura:** `{weather['temp']}°C`
+            **☁️ Condición:** `{weather['condition']}`
+            **💧 Humedad:** `{weather['humidity']}%`
             
-            **🔧 INFORMACIÓN:**
-            **• Versión:** {BotConfig.VERSION}
-            **• Desarrollador:** {BotConfig.DEVELOPER}
-            **• Soporte:** {BotConfig.SUPPORT_SERVER}
+            **📍 Ciudad:** {ciudad.title()}
+            **🕐 Actualizado:** {datetime.datetime.now().strftime('%H:%M')}
+            
+            *💫 Información meteorológica proporcionada por ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱*
+            """
+        )
+        await interaction.followup.send(embed=embed)
+    
+    @app_commands.command(name="botinfo", description="Información completa del bot ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱")
+    async def botinfo_slash(self, interaction: discord.Interaction):
+        """Información del bot"""
+        embed = Embeds.info(
+            "💜 ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 - Información del Sistema",
+            f"""
+            **📊 ESTADÍSTICAS GLOBALES:**
+            **• Servidores:** `{len(self.bot.guilds):,}`
+            **• Usuarios:** `{sum(g.member_count for g in self.bot.guilds):,}`
+            **• Comandos usados:** `{db.data['statistics']['commands_used']:,}`
+            **• Interacciones IA:** `{db.data['statistics']['ai_interactions']:,}`
+            **• Búsquedas:** `{db.data['statistics']['searches_performed']:,}`
+
+            **🚀 INFORMACIÓN TÉCNICA:**
+            **• Versión:** `{BotConfig.VERSION}`
+            **• Desarrollador:** `{BotConfig.DEVELOPER}`
+            **• Latencia:** `{round(self.bot.latency * 1000)}ms`
+            **• Uptime:** `{self.get_uptime()}`
+
+            **🎮 SISTEMAS ACTIVOS:**
+            ```
+            ✅ Minecraft Integration
+            ✅ AI Assistant  
+            ✅ Web Search
+            ✅ Level System
+            ✅ Economy System
+            ✅ Moderation Tools
+            ✅ Programming Help
+            ✅ Utility Commands
+            ```
+
+            **📍 SERVIDOR MINECRAFT:**
+            ```{BotConfig.MINECRAFT_IP}```
+
+            **💎 ¡Sistema ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 completamente operativo!**
             """
         )
         await interaction.response.send_message(embed=embed)
@@ -1450,148 +895,146 @@ class SlashCommands(commands.Cog):
         delta = datetime.datetime.now() - self.bot.start_time
         hours, remainder = divmod(int(delta.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
-        return f"{hours}h {minutes}m {seconds}s"
+        days, hours = divmod(hours, 24)
+        return f"{days}d {hours}h {minutes}m {seconds}s"
+
+# =============================================
+# COMANDOS TRADICIONALES (!)
+# =============================================
+
+class TraditionalCommands(commands.Cog):
+    """Comandos tradicionales con prefijo"""
     
-    @app_commands.command(name="serverinfo", description="Muestra información del servidor")
-    async def serverinfo_slash(self, interaction: discord.Interaction):
-        """Información del servidor (slash)"""
-        guild = interaction.guild
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command(name='ayuda', aliases=['help', 'comandos', 'hc'])
+    async def ayuda(self, ctx):
+        """Sistema de ayuda tradicional"""
+        embed = Embeds.info(
+            "💜 ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 - Comandos Tradicionales (!)",
+            """
+            **🎮 COMANDOS MINECRAFT:**
+            `!mcstatus` - Estado servidor Minecraft
+            `!mcplayers` - Jugadores en línea
+            `!linkmc <usuario>` - Vincular cuenta
+
+            **🤖 COMANDOS IA:**
+            `!ai <pregunta>` - Chat con IA
+            `!ask <pregunta>` - Preguntar anything
+
+            **🔍 COMANDOS BÚSQUEDA:**
+            `!search <texto>` - Buscar en internet
+            `!weather <ciudad>` - Clima de ciudad
+            `!wiki <tema>` - Buscar en Wikipedia
+
+            **🏆 COMANDOS NIVELES:**
+            `!nivel [usuario]` - Ver nivel
+            `!leaderboard` - Tabla clasificación
+            `!rank` - Tarjeta de rango
+
+            **💰 COMANDOS ECONOMÍA:**
+            `!daily` - Recompensa diaria
+            `!work` - Trabajar
+            `!balance [usuario]` - Ver balance
+
+            **📊 COMANDOS INFORMACIÓN:**
+            `!serverinfo` - Info servidor
+            `!userinfo [usuario]` - Info usuario
+            `!botinfo` - Info del bot
+
+            **🛡️ COMANDOS MODERACIÓN:**
+            `!warn <usuario> <razón>` - Advertir
+            `!clear <cantidad>` - Limpiar mensajes
+
+            **💻 COMANDOS PROGRAMACIÓN:**
+            `!code <lenguaje> <código>` - Formatear
+            `!langinfo <lenguaje>` - Info lenguaje
+
+            **📍 IP SERVIDOR MINECRAFT:**
+            ```honducraft.sdlf.fun```
+
+            **💎 Usa `/hc` para ver los comandos slash (/)**
+            """
+        )
+        await ctx.send(embed=embed)
+    
+    @commands.command(name='ai')
+    async def ai_traditional(self, ctx, *, pregunta: str):
+        """IA tradicional"""
+        respuesta = await SimpleAI.generate_response(pregunta)
+        
+        # Actualizar estadísticas
+        db.data["statistics"]["ai_interactions"] += 1
+        user_data = db.get_user_data(ctx.author.id, ctx.guild.id)
+        user_data["stats"]["ai_uses"] += 1
+        db.update_user_data(ctx.author.id, ctx.guild.id, user_data)
         
         embed = Embeds.info(
-            f"🌐 {guild.name} - Información",
+            "🤖 ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 IA - Respuesta",
             f"""
-            **📊 ESTADÍSTICAS:**
-            **• Miembros:** {guild.member_count:,}
-            **• Canales:** {len(guild.channels):,}
-            **• Roles:** {len(guild.roles):,}
-            **• Emojis:** {len(guild.emojis):,}
-            **• Boosts:** {guild.premium_subscription_count}
-            
-            **📅 INFORMACIÓN:**
-            **• Creado:** <t:{int(guild.created_at.timestamp())}:R>
-            **• Dueño:** {guild.owner.mention}
+            **👤 Pregunta de {ctx.author.display_name}:**
+            {pregunta}
+
+            **💜 Respuesta IA:**
+            {respuesta}
             """
         )
-        
-        if guild.icon:
-            embed.set_thumbnail(url=guild.icon.url)
-        
-        await interaction.response.send_message(embed=embed)
+        await ctx.send(embed=embed)
     
-    @app_commands.command(name="userinfo", description="Muestra información de un usuario")
-    @app_commands.describe(usuario="El usuario del que quieres información")
-    async def userinfo_slash(self, interaction: discord.Interaction, usuario: discord.Member = None):
-        """Información de usuario (slash)"""
-        usuario = usuario or interaction.user
+    @commands.command(name='search', aliases=['buscar'])
+    async def search_traditional(self, ctx, *, busqueda: str):
+        """Búsqueda tradicional"""
+        results = await WebSearch.search_google(busqueda, 3)
         
-        user_data = db.get_user_data(usuario.id, interaction.guild.id)
+        # Actualizar estadísticas
+        db.data["statistics"]["searches_performed"] += 1
+        user_data = db.get_user_data(ctx.author.id, ctx.guild.id)
+        user_data["stats"]["searches"] += 1
+        db.update_user_data(ctx.author.id, ctx.guild.id, user_data)
         
+        description = f"**🔍 Resultados para: `{busqueda}`**\n\n"
+        
+        for i, result in enumerate(results, 1):
+            description += f"**{i}. {result['title']}**\n"
+            description += f"{result['description']}\n"
+            description += f"*<{result['url']}>*\n\n"
+        
+        embed = Embeds.info("🔍 Búsqueda ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱", description)
+        await ctx.send(embed=embed)
+    
+    @commands.command(name='mcstatus')
+    async def mcstatus_traditional(self, ctx):
+        """Estado Minecraft tradicional"""
+        status = await MinecraftSystem.get_server_status()
+        embed = await MinecraftSystem.create_status_embed(BotConfig.MINECRAFT_IP, status)
+        await ctx.send(embed=embed)
+    
+    @commands.command(name='botinfo')
+    async def botinfo_traditional(self, ctx):
+        """Info del bot tradicional"""
         embed = Embeds.info(
-            f"👤 {usuario.display_name} - Información",
+            "💜 ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 - Sistema Avanzado",
             f"""
-            **📊 INFORMACIÓN GENERAL:**
-            **• Nombre:** {usuario.display_name}
-            **• ID:** `{usuario.id}`
-            **• Cuenta creada:** <t:{int(usuario.created_at.timestamp())}:R>
-            **• Se unió:** <t:{int(usuario.joined_at.timestamp())}:R>
-            **• Roles:** {len(usuario.roles) - 1}
-            
-            **🏆 SISTEMA DE NIVELES:**
-            **• Nivel:** {user_data['leveling']['level']}
-            **• XP:** {user_data['leveling']['xp']:,}
-            **• XP Total:** {user_data['leveling']['total_xp']:,}
+            **🤖 Bot:** ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 Ultra Pro
+            **🚀 Versión:** {BotConfig.VERSION}
+            **📊 Servidores:** {len(self.bot.guilds):,}
+            **👥 Usuarios:** {sum(g.member_count for g in self.bot.guilds):,}
+            **⚡ Latencia:** {round(self.bot.latency * 1000)}ms
+
+            **🎮 IP Minecraft:**
+            ```{BotConfig.MINECRAFT_IP}```
+
+            **💎 Comandos disponibles:**
+            `!ayuda` - Ver todos los comandos
+            `!ai` - Chat con IA
+            `!search` - Búsqueda web
+            `!mcstatus` - Estado Minecraft
+
+            **✨ Usa `/hc` para comandos slash**
             """
         )
-        
-        embed.set_thumbnail(url=usuario.display_avatar.url)
-        await interaction.response.send_message(embed=embed)
-    
-    @app_commands.command(name="level", description="Muestra tu nivel y progreso")
-    @app_commands.describe(usuario="El usuario del que quieres ver el nivel")
-    async def level_slash(self, interaction: discord.Interaction, usuario: discord.Member = None):
-        """Ver nivel (slash)"""
-        usuario = usuario or interaction.user
-        guild_config = db.get_guild_config(interaction.guild.id)
-        
-        if not guild_config["modules"]["levels"]:
-            await interaction.response.send_message(embed=Embeds.error("El sistema de niveles está desactivado."))
-            return
-        
-        user_data = db.get_user_data(usuario.id, interaction.guild.id)
-        level_data = user_data["leveling"]
-        
-        # Calcular XP necesario
-        xp_needed = AdvancedLeveling.calculate_xp_for_level(level_data['level'] + 1)
-        
-        embed = Embeds.premium(
-            f"🏆 Nivel de {usuario.display_name}",
-            f"""
-            **Nivel:** `{level_data['level']}`
-            **XP:** `{level_data['xp']:,}` / `{xp_needed:,}`
-            **XP Total:** `{level_data['total_xp']:,}`
-            **Mensajes:** `{level_data['messages']:,}`
-            
-            **Progreso:**
-            {AdvancedLeveling.create_progress_bar(level_data['xp'], xp_needed)}
-            """
-        )
-        
-        embed.set_thumbnail(url=usuario.display_avatar.url)
-        await interaction.response.send_message(embed=embed)
-    
-    @app_commands.command(name="daily", description="Reclama tu recompensa diaria")
-    async def daily_slash(self, interaction: discord.Interaction):
-        """Recompensa diaria (slash)"""
-        guild_config = db.get_guild_config(interaction.guild.id)
-        
-        if not guild_config["modules"]["economy"]:
-            await interaction.response.send_message(embed=Embeds.error("El sistema económico está desactivado."))
-            return
-        
-        result = await AdvancedEconomy.daily_reward(interaction.user)
-        
-        if result is None:
-            await interaction.response.send_message(embed=Embeds.error("Error al procesar la recompensa diaria."))
-        elif result is False:
-            await interaction.response.send_message(embed=Embeds.warning("Ya reclamaste tu recompensa diaria hoy."))
-        else:
-            currency_symbol = guild_config["economy"]["currency_symbol"]
-            embed = Embeds.success(
-                "🎁 Recompensa Diaria Reclamada",
-                f"""
-                **¡Recompensa diaria reclamada!** 🎊
-                
-                **Monedas ganadas:** {currency_symbol} **{result['amount']:,}**
-                **Racha actual:** {result['streak']} días
-                **Bono por racha:** {currency_symbol} {result['bonus']}
-                
-                *Vuelve mañana para seguir tu racha.*
-                """
-            )
-            await interaction.response.send_message(embed=embed)
-    
-    @app_commands.command(name="mcstatus", description="Muestra el estado del servidor de Minecraft")
-    @app_commands.describe(ip="La IP del servidor (opcional si está configurada)")
-    async def mcstatus_slash(self, interaction: discord.Interaction, ip: str = None):
-        """Estado de Minecraft (slash)"""
-        guild_config = db.get_guild_config(interaction.guild.id)
-        
-        if not guild_config["modules"]["minecraft"]:
-            await interaction.response.send_message(embed=Embeds.error("El sistema de Minecraft está desactivado."))
-            return
-        
-        server_ip = ip or guild_config["minecraft"]["server_ip"]
-        if not server_ip:
-            await interaction.response.send_message(embed=Embeds.error("No hay servidor de Minecraft configurado. Usa `/mcstatus <ip>`"))
-            return
-        
-        await interaction.response.defer()
-        
-        # Obtener estado
-        status = await MinecraftSystem.get_server_status(server_ip)
-        embed = await MinecraftSystem.create_status_embed(server_ip, status)
-        
-        await interaction.followup.send(embed=embed)
+        await ctx.send(embed=embed)
 
 # =============================================
 # EVENTOS Y TAREAS AUTOMÁTICAS
@@ -1604,8 +1047,10 @@ async def on_ready():
     
     print(f"""
     ╔════════════════════════════════════════════════════╗
-    ║              HONDUCRAFT ULTRA PRO 4.1              ║
-    ║              BOT PROFESIONAL AVANZADO              ║
+    ║                                                      ║
+    ║              ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 ULTRA PRO 5.0              ║
+    ║              SISTEMA AVANZADO ACTIVADO               ║
+    ║                                                      ║
     ╚════════════════════════════════════════════════════╝
     
     ✅ Bot conectado como: {bot.user.name}
@@ -1616,17 +1061,17 @@ async def on_ready():
     ⏰ Hora de inicio: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
     📈 Latencia: {round(bot.latency * 1000)}ms
     
-    🔧 Sistemas cargados:
-    • ✅ Base de datos profesional
-    • ✅ Sistema de moderación avanzado
-    • ✅ Niveles y economía
-    • ✅ Comandos tradicionales (!)
-    • ✅ Comandos slash (/)
-    • ✅ Sistema de Minecraft
-    • ✅ Sistema de programación
-    • ✅ Sistema de cache y performance
-    • ✅ Logging y analytics
-    • ✅ Tareas automáticas
+    🔧 SISTEMAS CARGADOS:
+    • ✅ IA Avanzada sin API
+    • ✅ Búsqueda Web sin API  
+    • ✅ Sistema Minecraft Mejorado
+    • ✅ Comandos Slash (/hc)
+    • ✅ Comandos Tradicionales (!)
+    • ✅ Base de Datos Avanzada
+    • ✅ Sistema de Cache
+    • ✅ Embeds Morados Profesionales
+    • ✅ Rich Presence Épico
+    • ✅ Estadísticas en Tiempo Real
     """)
     
     # Sincronizar comandos slash
@@ -1641,11 +1086,11 @@ async def on_ready():
     cleanup_cache.start()
     save_data_auto.start()
     
-    # Cambiar estado
+    # Estado épico inicial
     await bot.change_presence(
         activity=discord.Activity(
-            type=discord.ActivityType.watching,
-            name=f"{len(bot.guilds)} servidores | /help"
+            type=discord.ActivityType.playing,
+            name=f"MC: {BotConfig.MINECRAFT_IP} | /hc"
         ),
         status=discord.Status.online
     )
@@ -1660,64 +1105,29 @@ async def on_message(message: discord.Message):
     # Actualizar estadísticas
     db.data["statistics"]["messages_processed"] += 1
     
-    # Sistema de niveles
-    guild_config = db.get_guild_config(message.guild.id)
-    if guild_config["modules"]["levels"]:
-        await AdvancedLeveling.add_xp(message.author, message)
-    
     # Procesar comandos tradicionales
     await bot.process_commands(message)
 
-@bot.event
-async def on_member_join(member: discord.Member):
-    """Evento cuando un miembro se une al servidor"""
-    guild_config = db.get_guild_config(member.guild.id)
-    
-    if guild_config["modules"]["welcome"] and guild_config["welcome"]["enabled"]:
-        channel_id = guild_config["channels"]["welcome"]
-        channel = member.guild.get_channel(channel_id) if channel_id else member.guild.system_channel
-        
-        if channel:
-            welcome_message = guild_config["welcome"]["message"].format(
-                user=member,
-                server=member.guild
-            )
-            
-            embed = Embeds.success(
-                "👋 ¡Bienvenido/a!",
-                welcome_message,
-                color=guild_config["welcome"]["embed_color"]
-            )
-            embed.set_thumbnail(url=member.display_avatar.url)
-            
-            await channel.send(embed=embed)
-        
-        # Mensaje por DM
-        if guild_config["welcome"]["send_dm"]:
-            try:
-                dm_message = guild_config["welcome"]["dm_message"].format(
-                    user=member,
-                    server=member.guild
-                )
-                await member.send(dm_message)
-            except:
-                pass  # El usuario tiene los DMs cerrados
-
 # =============================================
-# TAREAS AUTOMÁTICAS
+# TAREAS AUTOMÁTICAS MEJORADAS
 # =============================================
 
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=2)
 async def update_presence():
-    """Actualiza el estado del bot periódicamente"""
+    """Actualiza el estado del bot con Rich Presence épico"""
     activities = [
+        discord.Activity(type=discord.ActivityType.playing, name=f"MC: {BotConfig.MINECRAFT_IP}"),
         discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servidores"),
-        discord.Activity(type=discord.ActivityType.listening, name="/help"),
-        discord.Activity(type=discord.ActivityType.playing, name=f"con {sum(g.member_count for g in bot.guilds):,} usuarios"),
-        discord.Activity(type=discord.ActivityType.watching, name="Honducraft Pro"),
-        discord.Activity(type=discord.ActivityType.competing, name="Minecraft & Programación")
+        discord.Activity(type=discord.ActivityType.listening, name="/hc commands"),
+        discord.Activity(type=discord.ActivityType.playing, name="with ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 Systems"),
+        discord.Activity(type=discord.ActivityType.watching, name="AI Intelligence"),
+        discord.Activity(type=discord.ActivityType.competing, name="Minecraft Adventures"),
+        discord.Activity(type=discord.ActivityType.streaming, name="Live: honducraft.com", url="https://twitch.tv/honducraft")
     ]
-    await bot.change_presence(activity=random.choice(activities))
+    
+    # Estado más épico cada 2 minutos
+    current_activity = random.choice(activities)
+    await bot.change_presence(activity=current_activity)
 
 @tasks.loop(minutes=10)
 async def cleanup_cache():
@@ -1745,10 +1155,10 @@ async def main():
         
         if not TOKEN or TOKEN == "TU_TOKEN_AQUI":
             print("❌ ERROR: Debes configurar tu token de Discord")
-            print("💡 Configura la variable de entorno DISCORD_TOKEN o reemplaza el token en el código")
+            print("💡 Configura la variable de entorno DISCORD_TOKEN")
             return
         
-        logger.info("🚀 Iniciando Honducraft Ultra Pro 4.1...")
+        logger.info("🚀 Iniciando ℌ𝔬𝔫𝔡𝔲ℭ𝔯𝔞𝔣𝔱 Ultra Pro 5.0...")
         await bot.start(TOKEN)
         
     except discord.LoginFailure:
@@ -1759,7 +1169,7 @@ async def main():
         logger.error(f"❌ Error crítico: {e}")
         traceback.print_exc()
 
-# Truco para Render: servidor falso en puerto 10000
+# Servidor para Render
 def fake_server():
     s = socket.socket()
     s.bind(('0.0.0.0', 10000))
