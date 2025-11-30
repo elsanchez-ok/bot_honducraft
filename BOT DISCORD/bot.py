@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands, tasks
 import asyncio
 import json
+import threading
+import socket
 import datetime
 import os
 import random
@@ -1218,9 +1220,22 @@ async def main():
         logger.error(f"❌ Error crítico: {e}")
         traceback.print_exc()
 
+# Truco para Render: servidor falso en puerto 10000
+def fake_server():
+    s = socket.socket()
+    s.bind(('0.0.0.0', 10000))
+    s.listen(1)
+    while True:
+        conn, addr = s.accept()
+        conn.close()
+
+threading.Thread(target=fake_server, daemon=True).start()
+
 # Ejecutar el bot
 if __name__ == "__main__":
     bot.run(os.getenv("DISCORD_TOKEN"))
+
+
 
 
 
