@@ -275,7 +275,7 @@ class ProfessionalDatabase:
                 "welcome": True,
                 "levels": True,
                 "economy": True,
-                "music": True,
+                "music": False,
                 "tickets": True,
                 "logging": True,
                 "automod": True,
@@ -1222,3 +1222,4 @@ async def main():
 if __name__ == "__main__":
 
     asyncio.run(main())
+
