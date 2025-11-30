@@ -1220,8 +1220,9 @@ async def main():
 
 # Ejecutar el bot
 if __name__ == "__main__":
+    bot.run(os.getenv("DISCORD_TOKEN"))
 
-    asyncio.run(main())
+
 
 
 
