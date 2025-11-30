@@ -58,7 +58,8 @@ logging.basicConfig(
 logger = logging.getLogger('HonducraftPro')
 
 # Configuración de intents avanzada
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(
     command_prefix=['!', 'hc ', 'HC ', 'honducraft ', 'Honducraft ', '.'],
     intents=intents,
@@ -1219,4 +1220,5 @@ async def main():
 
 # Ejecutar el bot
 if __name__ == "__main__":
+
     asyncio.run(main())
