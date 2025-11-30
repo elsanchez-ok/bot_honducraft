@@ -1,0 +1,261 @@
+2025-11-21 20:07:51 | WARNING | discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-11-21 20:07:51 | INFO | HonducraftPro: 🚀 Iniciando Honducraft Ultra Pro 4.0...
+2025-11-21 20:07:51 | INFO | discord.client: logging in using static token
+2025-11-21 20:07:52 | INFO | discord.gateway: Shard ID None has connected to Gateway (Session ID: befa0ea145ae722d39a8f7d4a1a656e4).
+2025-11-21 20:07:54 | INFO | HonducraftPro: ✅ 4 comandos slash sincronizados
+2025-11-21 20:07:54 | ERROR | HonducraftPro: Error guardando datos: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+2025-11-21 20:07:54 | ERROR | discord.ext.tasks: Unhandled exception in internal background task 'save_data_auto'.
+Traceback (most recent call last):
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 235, in save_data
+    self.clean_old_backups()
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\ext\tasks\__init__.py", line 246, in _loop
+    await self.coro(*args, **kwargs)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 1578, in save_data_auto
+    db.save_data()
+    ~~~~~~~~~~~~^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 241, in save_data
+    self.emergency_save()
+    ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'emergency_save'
+2025-11-21 20:09:14 | ERROR | HonducraftPro: Error guardando datos: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+2025-11-21 20:09:14 | ERROR | discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 235, in save_data
+    self.clean_old_backups()
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\client.py", line 504, in _run_event
+    await coro(*args, **kwargs)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 1531, in on_message
+    guild_config = db.get_guild_config(message.guild.id)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 263, in get_guild_config
+    self.save_data()
+    ~~~~~~~~~~~~~~^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 241, in save_data
+    self.emergency_save()
+    ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'emergency_save'
+2025-11-21 20:09:19 | ERROR | HonducraftPro: Error guardando datos: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+2025-11-21 20:09:19 | ERROR | discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 235, in save_data
+    self.clean_old_backups()
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\client.py", line 504, in _run_event
+    await coro(*args, **kwargs)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 1533, in on_message
+    await AdvancedLeveling.add_xp(message.author, message)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 694, in add_xp
+    user_data = db.get_user_data(user.id, user.guild.id)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 369, in get_user_data
+    self.save_data()
+    ~~~~~~~~~~~~~~^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 241, in save_data
+    self.emergency_save()
+    ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'emergency_save'
+2025-11-21 20:09:26 | ERROR | HonducraftPro: Error guardando datos: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+2025-11-21 20:09:26 | ERROR | discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 235, in save_data
+    self.clean_old_backups()
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'clean_old_backups'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\client.py", line 504, in _run_event
+    await coro(*args, **kwargs)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 1533, in on_message
+    await AdvancedLeveling.add_xp(message.author, message)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 732, in add_xp
+    db.update_user_data(user.id, user.guild.id, user_data)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 417, in update_user_data
+    self.save_data()
+    ~~~~~~~~~~~~~~^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 241, in save_data
+    self.emergency_save()
+    ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 424, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'ProfessionalDatabase' object has no attribute 'emergency_save'
+2025-11-21 20:18:44 | WARNING | discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-11-21 20:18:44 | INFO | HonducraftPro: 🚀 Iniciando Honducraft Ultra Pro 4.0...
+2025-11-21 20:18:44 | INFO | discord.client: logging in using static token
+2025-11-21 20:18:45 | INFO | discord.gateway: Shard ID None has connected to Gateway (Session ID: dbeaec1206357f91ad9fca0751a055e4).
+2025-11-21 20:18:47 | INFO | HonducraftPro: ✅ 9 comandos slash sincronizados
+2025-11-21 20:18:47 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 20:19:46 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 20:29:52 | WARNING | discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-11-21 20:29:52 | INFO | HonducraftPro: 🚀 Iniciando Honducraft Ultra Pro 4.0...
+2025-11-21 20:29:52 | INFO | discord.client: logging in using static token
+2025-11-21 20:29:55 | INFO | discord.gateway: Shard ID None has connected to Gateway (Session ID: ba138495a781f07d3cb60c2b120ce458).
+2025-11-21 20:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 20:31:36 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 20:40:56 | WARNING | discord.gateway: Can't keep up, shard ID None websocket is 41.3s behind.
+2025-11-21 20:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 20:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 21:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 21:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 21:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 21:47:55 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 21:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 22:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 22:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 22:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 22:56:49 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-21 22:57:06 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-21 22:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 23:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 23:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 23:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-21 23:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 00:09:57 | ERROR | discord.ext.tasks: Handling exception in internal background task update_presence. Retrying in 0.05s
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\ext\tasks\__init__.py", line 246, in _loop
+    await self.coro(*args, **kwargs)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 1179, in update_presence
+    await bot.change_presence(activity=random.choice(activities))
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\client.py", line 2110, in change_presence
+    await self.ws.change_presence(activity=activity, status=status_str)
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\gateway.py", line 713, in change_presence
+    await self.send(sent)
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\gateway.py", line 667, in send
+    await self.socket.send_str(data)
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiohttp\client_ws.py", line 245, in send_str
+    await self._writer.send_frame(
+        data.encode("utf-8"), WSMsgType.TEXT, compress=compress
+    )
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiohttp\_websocket\writer.py", line 72, in send_frame
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+2025-11-22 00:09:57 | ERROR | discord.ext.tasks: Handling exception in internal background task update_presence. Retrying in 3.25s
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\ext\tasks\__init__.py", line 246, in _loop
+    await self.coro(*args, **kwargs)
+  File "c:\Users\david\Downloads\BOT DISCORD\bot.py", line 1179, in update_presence
+    await bot.change_presence(activity=random.choice(activities))
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\client.py", line 2110, in change_presence
+    await self.ws.change_presence(activity=activity, status=status_str)
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\gateway.py", line 713, in change_presence
+    await self.send(sent)
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\discord\gateway.py", line 667, in send
+    await self.socket.send_str(data)
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiohttp\client_ws.py", line 245, in send_str
+    await self._writer.send_frame(
+        data.encode("utf-8"), WSMsgType.TEXT, compress=compress
+    )
+  File "C:\Users\david\AppData\Local\Programs\Python\Python313\Lib\site-packages\aiohttp\_websocket\writer.py", line 72, in send_frame
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+2025-11-22 00:09:57 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 00:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 00:26:44 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 00:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 00:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 00:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 01:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 01:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 01:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 01:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 02:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 02:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 02:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 02:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 03:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 03:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 03:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 03:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 04:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 04:17:12 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 04:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 04:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 04:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 05:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 05:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 05:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 05:47:05 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 05:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 06:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 06:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 06:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 06:50:50 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 06:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 07:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 07:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 07:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 07:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 08:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 08:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 08:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 08:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 09:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 09:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 09:43:54 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 09:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 09:46:05 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 09:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 10:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 10:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 10:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 10:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 11:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 11:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 11:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 11:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 12:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 12:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 12:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 12:50:32 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 12:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 13:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 13:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 13:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 13:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 14:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 14:20:30 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 14:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 14:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 14:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 15:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 15:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 15:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 15:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 16:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 16:29:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 16:44:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 16:51:27 | INFO | discord.gateway: Shard ID None has successfully RESUMED session ba138495a781f07d3cb60c2b120ce458.
+2025-11-22 16:59:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 17:14:57 | INFO | HonducraftPro: Datos guardados exitosamente
+2025-11-22 17:15:31 | WARNING | discord.gateway: Can't keep up, shard ID None websocket is 41.3s behind.

@@ -1,0 +1,23 @@
+{
+    "warns": {},
+    "tickets": {},
+    "user_profiles": {},
+    "server_config": {},
+    "statistics": {
+        "commands_used": 1,
+        "tickets_created": 0,
+        "mod_actions": 0,
+        "messages_deleted": 0,
+        "users_joined": 0,
+        "roles_assigned": 0
+    },
+    "auto_roles": {
+        "on_join": [],
+        "reaction_roles": {}
+    },
+    "reaction_roles": {},
+    "moderation_settings": {
+        "anti_spam": true,
+        "max_warns": 3
+    }
+}

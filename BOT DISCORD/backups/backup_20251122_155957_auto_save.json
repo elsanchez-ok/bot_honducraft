@@ -1,0 +1,191 @@
+{
+  "metadata": {
+    "version": "4.0.0",
+    "created_at": "2025-11-21T20:07:54.966903",
+    "last_backup": "20251122_154457",
+    "total_servers": 0,
+    "total_users": 0,
+    "uptime": 0,
+    "last_updated": "2025-11-22T15:44:57.443540",
+    "data_size": 3163
+  },
+  "servers": {
+    "1432011865961005101": {
+      "prefix": "/",
+      "language": "es",
+      "modules": {
+        "moderation": true,
+        "welcome": true,
+        "levels": true,
+        "economy": true,
+        "music": true,
+        "tickets": true,
+        "logging": true,
+        "automod": true,
+        "fun": true,
+        "utility": true
+      },
+      "channels": {
+        "welcome": null,
+        "goodbye": null,
+        "logs": null,
+        "mod_logs": null,
+        "level_up": null,
+        "suggestions": null,
+        "tickets_category": null
+      },
+      "roles": {
+        "muted": null,
+        "auto_roles": [],
+        "bot_roles": [],
+        "level_roles": {},
+        "staff_roles": [],
+        "admin_roles": []
+      },
+      "automod": {
+        "enabled": true,
+        "anti_spam": true,
+        "anti_raid": true,
+        "anti_invites": true,
+        "anti_links": false,
+        "max_warns": 3,
+        "filter_words": [],
+        "whitelisted_links": [],
+        "whitelisted_roles": [],
+        "ignored_channels": []
+      },
+      "leveling": {
+        "enabled": true,
+        "announce_level_up": true,
+        "xp_per_message": 15,
+        "xp_cooldown": 60,
+        "message_multiplier": 1.0,
+        "role_multipliers": {},
+        "channel_multipliers": {}
+      },
+      "economy": {
+        "enabled": true,
+        "currency_name": "coins",
+        "currency_symbol": "🪙",
+        "daily_amount": 100,
+        "work_amount_min": 50,
+        "work_amount_max": 150,
+        "starting_balance": 100
+      },
+      "tickets": {
+        "enabled": true,
+        "support_roles": [],
+        "categories": {
+          "support": {
+            "emoji": "💼",
+            "name": "Soporte"
+          },
+          "report": {
+            "emoji": "🚨",
+            "name": "Reporte"
+          },
+          "suggestion": {
+            "emoji": "💡",
+            "name": "Sugerencia"
+          }
+        }
+      },
+      "welcome": {
+        "enabled": true,
+        "message": "¡Bienvenido {user.mention} a {server.name}!",
+        "goodbye_message": "¡{user.name} ha dejado el servidor!",
+        "embed_color": 5793266,
+        "send_dm": true,
+        "dm_message": "¡Gracias por unirte a {server.name}!"
+      },
+      "logging": {
+        "enabled": true,
+        "events": [
+          "message_delete",
+          "message_edit",
+          "member_join",
+          "member_leave",
+          "role_changes",
+          "channel_updates",
+          "member_bans",
+          "member_unbans",
+          "voice_changes"
+        ]
+      }
+    }
+  },
+  "users": {
+    "1432011865961005101_829482991939878994": {
+      "leveling": {
+        "level": 1,
+        "xp": 60,
+        "total_xp": 60,
+        "messages": 4,
+        "voice_time": 0,
+        "last_message": "2025-11-21T21:47:55.286189",
+        "rank_card": "default"
+      },
+      "economy": {
+        "wallet": 100,
+        "bank": 0,
+        "daily_streak": 0,
+        "last_daily": null,
+        "last_work": null,
+        "inventory": {},
+        "job": null
+      },
+      "moderation": {
+        "warns": [],
+        "mutes": 0,
+        "kicks": 0,
+        "bans": 0
+      },
+      "preferences": {
+        "timezone": "UTC",
+        "notifications": true,
+        "privacy_mode": false
+      },
+      "stats": {
+        "commands_used": 0,
+        "messages_sent": 0,
+        "reactions_added": 0,
+        "joined_at": "2025-11-21T20:09:19.388164"
+      }
+    }
+  },
+  "statistics": {
+    "commands_used": 6,
+    "messages_processed": 7,
+    "tickets_created": 0,
+    "mod_actions": 0,
+    "warns_issued": 0,
+    "messages_deleted": 0,
+    "users_joined": 0,
+    "users_left": 0,
+    "roles_assigned": 0,
+    "reactions_added": 0,
+    "level_ups": 0,
+    "economy_transactions": 0,
+    "music_plays": 0
+  },
+  "analytics": {
+    "daily_commands": {},
+    "popular_commands": {},
+    "user_activity": {},
+    "guild_growth": {}
+  },
+  "warns": {},
+  "mutes": {},
+  "tickets": {},
+  "economy": {},
+  "config": {
+    "mod_role": "Staff",
+    "log_channel": "📊・honducraft-logs",
+    "ticket_category": "🎫・TICKETS"
+  },
+  "automod": {
+    "anti_spam": true,
+    "anti_links": false,
+    "max_warns": 3
+  }
+}

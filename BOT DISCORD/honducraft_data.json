@@ -1,0 +1,28 @@
+{
+    "warns": {},
+    "tickets": {
+        "1441580401104781354": {
+            "user_id": 829482991939878994,
+            "user_name": "David",
+            "created_at": "2025-11-21T18:05:51.886249",
+            "type": "reporte",
+            "display_name": "Reporte de Usuario",
+            "status": "closed",
+            "guild_id": 1432011865961005101,
+            "closed_by": 829482991939878994,
+            "closed_at": "2025-11-21T18:08:18.251543",
+            "closed_by_name": "David"
+        }
+    },
+    "user_profiles": {},
+    "server_config": {},
+    "statistics": {
+        "commands_used": 2,
+        "tickets_created": 1,
+        "mod_actions": 0,
+        "messages_deleted": 0,
+        "users_joined": 0
+    },
+    "reaction_roles": {},
+    "economy": {}
+}
