@@ -18,6 +18,9 @@ import traceback
 from collections import defaultdict, Counter
 import re
 import time
+from aiohttp import web
+import threading
+
 
 # =============================================
 # CONFIGURACIÓN AVANZADA Y CONSTANTES
@@ -1168,17 +1171,25 @@ async def main():
         traceback.print_exc()
 
 # Servidor para Render
+
 async def handle(request):
     return web.Response(text="Honducraft Bot está vivo 🚀")
 
-def start_web_server():
+async def start_web_server():
     app = web.Application()
     app.router.add_get("/", handle)
-    web.run_app(app, host="0.0.0.0", port=10000)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", 10000)
+    await site.start()
+    print("🌐 Servidor web iniciado en puerto 10000")
 
-# Lanzar el servidor en segundo plano
-threading.Thread(target=start_web_server, daemon=True).start()
 
 # Ejecutar el bot
 if __name__ == "__main__":
-    asyncio.run(main())
+    # Iniciar servidor web junto al bot
+    await start_web_server()
+    await bot.add_cog(SlashCommands(bot))
+    await bot.start(os.getenv("DISCORD_TOKEN"))
+
+
