@@ -1231,6 +1231,21 @@ def fake_server():
 
 threading.Thread(target=fake_server, daemon=True).start()
 
-# Ejecutar el bot
+async def main():
+    try:
+        TOKEN = os.getenv("DISCORD_TOKEN")
+        if not TOKEN:
+            print("❌ ERROR: No se encontró el token en las variables de entorno.")
+            return
+
+        # Cargar comandos tradicionales
+        await bot.add_cog(TraditionalCommands(bot))
+
+        # Iniciar bot
+        await bot.start(TOKEN)
+
+    except Exception as e:
+        logger.error(f"❌ Error crítico: {e}")
+
 if __name__ == "__main__":
     asyncio.run(main())
