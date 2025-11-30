@@ -18,7 +18,7 @@
         "welcome": true,
         "levels": true,
         "economy": true,
-        "music": true,
+        "music": false,
         "tickets": true,
         "logging": true,
         "automod": true,
@@ -188,4 +188,5 @@
     "anti_links": false,
     "max_warns": 3
   }
+
 }
