@@ -1202,7 +1202,7 @@ async def main():
     
     # Iniciar el bot
     try:
-        TOKEN = "MTQ0MTE0ODY4NDUxNDM2MTQ2Ng.G2Ian6.SviB2CS04VZylVZOvEGsBmXLqG9tGWhSfe5HXw"  # ⚠️ REEMPLAZA CON TU TOKEN REAL
+        TOKEN = "MTQ0MTE0ODY4NDUxNDM2MTQ2Ng.GYgx6k.iB6KitwmumRQYhI2QUMZAT4Lc3HuKXW4b_MdrAS"  # ⚠️ REEMPLAZA CON TU TOKEN REAL
         
         if TOKEN == "TU_TOKEN_AQUI":
             print("❌ ERROR: Debes configurar tu token de Discord")
@@ -1234,6 +1234,7 @@ threading.Thread(target=fake_server, daemon=True).start()
 # Ejecutar el bot
 if __name__ == "__main__":
     bot.run(os.getenv("DISCORD_TOKEN"))
+
 
 
 
