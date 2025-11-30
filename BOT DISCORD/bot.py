@@ -1171,7 +1171,6 @@ async def main():
         traceback.print_exc()
 
 # Servidor para Render
-
 async def handle(request):
     return web.Response(text="Honducraft Bot está vivo 🚀")
 
@@ -1184,12 +1183,19 @@ async def start_web_server():
     await site.start()
     print("🌐 Servidor web iniciado en puerto 10000")
 
-
-# Ejecutar el bot
-if __name__ == "__main__":
+async def main():
     # Iniciar servidor web junto al bot
     await start_web_server()
+
+    # Aquí cargas tus cogs y demás
     await bot.add_cog(SlashCommands(bot))
+
+    # Iniciar el bot
     await bot.start(os.getenv("DISCORD_TOKEN"))
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
 
 
